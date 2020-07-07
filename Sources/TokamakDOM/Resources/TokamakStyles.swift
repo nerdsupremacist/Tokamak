@@ -53,4 +53,46 @@ let tokamakStyles = """
   flex-direction: column;
   margin-left: 1em;
 }
+
+._tokamak-toolbar-container {
+  width: 100%;
+  height: 100%;
+}
+._tokamak-toolbar-container-toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 38px;
+  padding: 10px;
+  box-sizing: border-box;
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+}
+._tokamak-toolbar-container-toolbar-item {
+  flex-shrink: 1;
+  flex-grow: 0;
+}
+._tokamak-toolbar-container-toolbar > ._tokamak-toolbar-container-toolbar-item {
+  margin-left: auto;
+}
+._tokamak-toolbar-container-toolbar > ._tokamak-toolbar-container-toolbar-item ~ ._tokamak-toolbar-container-toolbar-item {
+  margin-left: unset;
+}
+/*._tokamak-toolbar-container-toolbar > ._tokamak-toolbar-container-toolbar-item:last-child {
+  margin-right: auto;
+}*/
+._tokamak-toolbar-container-content > *:first-child:not(._tokamak-scrollview) {
+  margin-top: 38px;
+}
+._tokamak-toolbar-container-content > ._tokamak-scrollview:first-of-type:before {
+  content: '';
+  height: 38px;
+  display: block;
+}
 """

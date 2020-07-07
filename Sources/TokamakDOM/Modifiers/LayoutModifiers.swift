@@ -89,7 +89,7 @@ extension _PaddingLayout: DOMViewModifier {
       }
     }
     return ["style": padding
-      .map { "padding-\($0.0): \($0.1);" }
+      .map { "padding-\($0.0): \($0.1); box-sizing: border-box;" }
       .joined(separator: " ")]
   }
 }
