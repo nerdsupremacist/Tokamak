@@ -18,6 +18,17 @@ import TokamakDOM
 let document = JSObjectRef.global.document.object!
 
 let div = document.createElement!("div").object!
-let renderer = DOMRenderer(TokamakDemoView(), div)
+let renderer = DOMRenderer(TokamakDemoView()
+  .toolbar {
+    ToolbarItem(placement: .navigation) {
+      Text("Tokamak")
+    }
+    ToolbarItem {
+      Button("+", action: { print("Add Item") })
+    }
+    ToolbarItem {
+      Button("-", action: { print("Remove Item") })
+    }
+                            }, div)
 
 _ = document.body.object!.appendChild!(div)

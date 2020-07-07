@@ -54,15 +54,15 @@ extension ToolbarItem: ViewDeferredToRenderer {
   }
 }
 
-// extension _ToolbarContainer : ViewDeferredToRenderer where Content : View {
-//  public var deferredBody: AnyView {
-//    AnyView(HTML("div", ["class": "_tokamak-toolbar-container"]) {
-//      HTML("div", ["class": "_tokamak-toolbar-container-toolbar"]) {
-//        content
-//      }
-//      HTML("div", ["class": "_tokamak-toolbar-container-content"]) {
-//        child
-//      }
-//    })
-//  }
-// }
+extension _ToolbarContainer: ViewDeferredToRenderer where Content: View {
+  public var deferredBody: AnyView {
+    AnyView(HTML("div", ["class": "_tokamak-toolbar-container"]) {
+      HTML("div", ["class": "_tokamak-toolbar-container-toolbar"]) {
+        content
+      }
+      HTML("div", ["class": "_tokamak-toolbar-container-content"]) {
+        child
+      }
+    })
+  }
+}
