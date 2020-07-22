@@ -21,8 +21,20 @@ import SwiftUI
 import TokamakDOM
 #endif
 
+@available(OSX 11.0, iOS 14.0, *)
 struct ToolbarDemo: View {
   var body: some View {
     Text("My sole purpose in life is to add toolbars to the root of the app.")
+      .toolbar {
+        ToolbarItem(placement: .navigation) {
+          Text("Tokamak")
+        }
+        ToolbarItem {
+          Button("+", action: { print("Add Item") })
+        }
+        ToolbarItem {
+          Button("-", action: { print("Remove Item") })
+        }
+      }
   }
 }

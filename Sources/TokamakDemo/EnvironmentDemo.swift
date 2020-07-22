@@ -15,20 +15,32 @@
 //  Created by Carson Katri on 6/30/20.
 //
 
-#if canImport(SwiftUI)
-import SwiftUI
-#else
-import TokamakDOM
-#endif
+import TokamakShim
+
+class TestEnvironment: ObservableObject {
+  @Published var envTest = "Hello, world!"
+  init() {}
+}
+
+struct EnvironmentObjectDemo: View {
+  @EnvironmentObject var testEnv: TestEnvironment
+
+  var body: some View {
+    Button(testEnv.envTest) {
+      testEnv.envTest = "EnvironmentObject modified."
+    }
+  }
+}
 
 struct EnvironmentDemo: View {
   @Environment(\.font) var font: Font?
+  @EnvironmentObject var testEnv: TestEnvironment
 
   var body: some View {
-    if let font = font {
-      return Text("\(String(describing: font))")
-    } else {
-      return Text("`font` environment not set.")
+    VStack {
+      Text(font == nil ? "`font` environment not set." : "\(String(describing: font!))")
+      Text(testEnv.envTest)
+      EnvironmentObjectDemo()
     }
   }
 }

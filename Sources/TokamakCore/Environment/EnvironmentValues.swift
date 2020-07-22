@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import OpenCombine
+
 public struct EnvironmentValues: CustomStringConvertible {
   public var description: String {
     String(describing: values)
@@ -31,5 +33,32 @@ public struct EnvironmentValues: CustomStringConvertible {
     set {
       values[ObjectIdentifier(key)] = newValue
     }
+  }
+
+  subscript<B>(bindable: ObjectIdentifier) -> B? where B: ObservableObject {
+    get {
+      values[bindable] as? B
+    }
+    set {
+      values[bindable] = newValue
+    }
+  }
+}
+
+struct _EnvironmentValuesWritingModifier: ViewModifier, EnvironmentModifier {
+  let environmentValues: EnvironmentValues
+
+  func body(content: Content) -> some View {
+    content
+  }
+
+  func modifyEnvironment(_ values: inout EnvironmentValues) {
+    values = environmentValues
+  }
+}
+
+extension View {
+  public func environmentValues(_ values: EnvironmentValues) -> some View {
+    modifier(_EnvironmentValuesWritingModifier(environmentValues: values))
   }
 }

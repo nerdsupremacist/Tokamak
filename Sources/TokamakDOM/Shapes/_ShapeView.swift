@@ -38,14 +38,10 @@ extension _ShapeView: ViewDeferredToRenderer {
       return AnyView(HTML("div", shapeAttributes.attributes(style)) { path })
     } else if let color = style as? Color {
       return AnyView(HTML("div", ["style": "fill: \(color);"]) { path })
+    } else if let foregroundColor = foregroundColor {
+      return AnyView(HTML("div", ["style": "fill: \(foregroundColor);"]) { path })
     } else {
       return path
     }
   }
 }
-
-public typealias Rectangle = TokamakCore.Rectangle
-public typealias RoundedRectangle = TokamakCore.RoundedRectangle
-public typealias Ellipse = TokamakCore.Ellipse
-public typealias Circle = TokamakCore.Circle
-public typealias Capsule = TokamakCore.Capsule

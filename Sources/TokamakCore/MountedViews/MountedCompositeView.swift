@@ -15,32 +15,10 @@
 //  Created by Max Desiatov on 03/12/2018.
 //
 
+import OpenCombine
 import Runtime
 
-final class MountedCompositeView<R: Renderer>: MountedView<R>, Hashable {
-  static func == (lhs: MountedCompositeView<R>,
-                  rhs: MountedCompositeView<R>) -> Bool {
-    lhs === rhs
-  }
-
-  func hash(into hasher: inout Hasher) {
-    hasher.combine(ObjectIdentifier(self))
-  }
-
-  private var mountedChildren = [MountedView<R>]()
-  private let parentTarget: R.TargetType
-
-  var state = [Any]()
-  var environmentValues: EnvironmentValues
-
-  init(_ view: AnyView, _ parentTarget: R.TargetType,
-       _ environmentValues: EnvironmentValues) {
-    self.parentTarget = parentTarget
-    self.environmentValues = environmentValues
-
-    super.init(view)
-  }
-
+final class MountedCompositeView<R: Renderer>: MountedCompositeElement<R> {
   override func mount(with reconciler: StackReconciler<R>) {
     let childBody = reconciler.render(compositeView: self)
 
@@ -48,8 +26,8 @@ final class MountedCompositeView<R: Renderer>: MountedView<R>, Hashable {
       appearanceAction.appear?()
     }
 
-    let child: MountedView<R> = childBody.makeMountedView(parentTarget,
-                                                          environmentValues)
+    let child: MountedElement<R> = childBody.makeMountedView(parentTarget,
+                                                             environmentValues)
     mountedChildren = [child]
     child.mount(with: reconciler)
   }
@@ -70,8 +48,8 @@ final class MountedCompositeView<R: Renderer>: MountedView<R>, Hashable {
     switch (mountedChildren.last, reconciler.render(compositeView: self)) {
     // no mounted children, but children available now
     case let (nil, childBody):
-      let child: MountedView<R> = childBody.makeMountedView(parentTarget,
-                                                            environmentValues)
+      let child: MountedElement<R> = childBody.makeMountedView(parentTarget,
+                                                               environmentValues)
       mountedChildren = [child]
       child.mount(with: reconciler)
 
@@ -94,8 +72,8 @@ final class MountedCompositeView<R: Renderer>: MountedView<R>, Hashable {
         // wrapper, then mount a new one with the new `childBody`
         wrapper.unmount(with: reconciler)
 
-        let child: MountedView<R> = childBody.makeMountedView(parentTarget,
-                                                              environmentValues)
+        let child: MountedElement<R> = childBody.makeMountedView(parentTarget,
+                                                                 environmentValues)
         mountedChildren = [child]
         child.mount(with: reconciler)
       }

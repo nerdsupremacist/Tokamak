@@ -12,11 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(SwiftUI)
-import SwiftUI
-#else
-import TokamakDOM
-#endif
+import TokamakShim
 
 struct Star: Shape {
   func path(in rect: CGRect) -> Path {
@@ -27,7 +23,6 @@ struct Star: Shape {
       path.addLine(to: .init(x: 0, y: 30.4))
       path.addLine(to: .init(x: 64, y: 76))
       path.addLine(to: .init(x: 40, y: 0))
-      print(path)
     }
   }
 }
@@ -52,6 +47,15 @@ struct PathDemo: View {
       }
       .stroke(Color(red: 1, green: 0.75, blue: 0.1, opacity: 1), lineWidth: 4)
       .padding(.vertical)
+      HStack {
+        Circle()
+          .frame(width: 25, height: 25)
+        Rectangle()
+          .frame(width: 25, height: 25)
+        Capsule()
+          .frame(width: 50, height: 25)
+      }
+      .foregroundColor(Color.blue)
     }
   }
 }
