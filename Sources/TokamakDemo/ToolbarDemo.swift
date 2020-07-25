@@ -27,7 +27,7 @@ struct ToolbarDemo: View {
     Text("My sole purpose in life is to add toolbars to the root of the app.")
       .toolbar {
         ToolbarItem(placement: .navigation) {
-          Text("Tokamak")
+          Text("Nav Item")
         }
         ToolbarItem {
           Button("+", action: { print("Add Item") })

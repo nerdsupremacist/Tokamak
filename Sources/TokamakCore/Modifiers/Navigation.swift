@@ -12,14 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+struct _NavigationTitleWriting<Title, Content>: View
+  where Title: View, Content: View {
+  @EnvironmentObject var context: NavigationContext
+  let title: Title
+  let content: Content
+
+  var body: Content {
+    context.title = AnyView(title)
+    return content
+  }
+}
+
 extension View {
-  // FIXME: Implement
   public func navigationBarTitle<S>(_ title: S) -> some View where S: StringProtocol {
-    self
+    navigationTitle(title)
   }
 
-  // FIXME: Implement
   public func navigationTitle<S>(_ title: S) -> some View where S: StringProtocol {
-    self
+    _NavigationTitleWriting(title: Text(title), content: self)
   }
 }

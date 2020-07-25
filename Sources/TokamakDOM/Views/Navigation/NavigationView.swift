@@ -15,7 +15,7 @@
 import JavaScriptKit
 import TokamakCore
 
-extension NavigationView: ViewDeferredToRenderer {
+extension _NavigationViewBody: ViewDeferredToRenderer {
   public var deferredBody: AnyView {
     AnyView(HTML("div", [
       "style": """
@@ -23,7 +23,7 @@ extension NavigationView: ViewDeferredToRenderer {
       width: 100%; height: 100%;
       """,
     ]) {
-      _NavigationViewProxy(self).body
+      content
     })
   }
 }

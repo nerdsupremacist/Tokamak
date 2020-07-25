@@ -81,8 +81,20 @@ extension ToolbarContentBuilder {
 }
 
 extension ToolbarItemGroup: View {
-  public var body: Never {
-    neverBody("ToolbarItemGroup")
+  public var body: some View {
+    let items = _items.sorted { a, b in
+      if let a = a.view as? AnyToolbarItem,
+        let b = b.view as? AnyToolbarItem {
+        // Bring `.navigation` placements to the front
+        if a.placement == .navigation && b.placement != .navigation {
+          return true
+        }
+      }
+      return false
+    }
+    return ForEach(Array(items.enumerated()), id: \.offset) { _, view in
+      view
+    }
   }
 
   public init(_ value: Items, children: [AnyView]) {

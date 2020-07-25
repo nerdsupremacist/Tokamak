@@ -99,11 +99,28 @@ public protocol _AnyToolbarContainer {
 }
 
 public struct _ToolbarContainer<ID, Content, Wrapped>: View where Wrapped: View {
+  @Environment(_navigationToolbarKey) var navigationToolbar
+  @Environment(_navigationTitleKey) var navigationTitle
+
+  init(id: ID, content: Content, child: Wrapped) {
+    (self.id, self.content, self.child) = (id, content, child)
+  }
+
   public let id: ID
   public let content: Content
   public let child: Wrapped
+
   public var body: Wrapped {
     child
+  }
+
+  public var handledByNavigationView: Bool {
+    navigationToolbar != nil
+  }
+
+  public var title: AnyView {
+    print(navigationTitle)
+    return navigationTitle?.wrappedValue ?? AnyView(EmptyView())
   }
 }
 

@@ -21,24 +21,6 @@ public typealias ToolbarItem = TokamakCore.ToolbarItem
 public typealias ToolbarItemPlacement = TokamakCore.ToolbarItemPlacement
 public typealias ToolbarItemGroup = TokamakCore.ToolbarItemGroup
 
-extension ToolbarItemGroup: ViewDeferredToRenderer {
-  public var deferredBody: AnyView {
-    let items = _ToolbarItemGroupProxy(self)._items.sorted { a, b in
-      if let a = _AnyViewProxy(a).view as? AnyToolbarItem,
-        let b = _AnyViewProxy(b).view as? AnyToolbarItem {
-        // Bring `.navigation` placements to the front
-        if a.placement == .navigation && b.placement != .navigation {
-          return true
-        }
-      }
-      return false
-    }
-    return AnyView(ForEach(Array(items.enumerated()), id: \.offset) { _, view in
-      view
-    })
-  }
-}
-
 extension ToolbarItem: ViewDeferredToRenderer {
   public var deferredBody: AnyView {
     switch _ToolbarItemProxy(self).placement {
@@ -58,6 +40,7 @@ extension _ToolbarContainer: ViewDeferredToRenderer where Content: View {
   public var deferredBody: AnyView {
     AnyView(HTML("div", ["class": "_tokamak-toolbar-container"]) {
       HTML("div", ["class": "_tokamak-toolbar-container-toolbar"]) {
+        title
         content
       }
       HTML("div", ["class": "_tokamak-toolbar-container-content"]) {

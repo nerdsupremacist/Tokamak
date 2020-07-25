@@ -119,40 +119,51 @@ var links: [NavItem] {
 
 struct TokamakDemoView: View {
   var body: some View {
-    NavigationView { () -> AnyView in
-      let list = title(
-        List(links) { link in
-          if let dest = link.destination {
-            NavigationLink(link.id, destination: HStack {
-              Spacer()
-              dest
-              Spacer()
-            })
-          } else {
-            #if os(WASI)
-            Text(link.id)
-            #else
-            HStack {
-              Text(link.id)
-              Spacer()
-              Text("unavailable").opacity(0.5)
-            }
-            #endif
-          }
-        }
-        .frame(minHeight: 300),
-        title: "Demos"
-      )
-      #if os(WASI)
-      return AnyView(list)
-      #else
-      if #available(iOS 14.0, *) {
-        return AnyView(list.listStyle(SidebarListStyle()))
-      } else {
-        return AnyView(list)
-      }
-      #endif
+//    NavigationView { () -> AnyView in
+//      let list = title(
+//        List(links) { link in
+//          if let dest = link.destination {
+//            NavigationLink(link.id, destination: HStack {
+//              Spacer()
+//              dest
+//              Spacer()
+//            })
+//          } else {
+//            #if os(WASI)
+//            Text(link.id)
+//            #else
+//            HStack {
+//              Text(link.id)
+//              Spacer()
+//              Text("unavailable").opacity(0.5)
+//            }
+//            #endif
+//          }
+//        }
+//        .frame(minHeight: 300),
+//        title: "Demos"
+//      )
+//      #if os(WASI)
+//      return AnyView(list
+//                      .navigationTitle("Tokamak"))
+//      #else
+//      if #available(iOS 14.0, *) {
+//        return AnyView(list
+//                        .listStyle(SidebarListStyle())
+//                        .navigationTitle("Tokamak"))
+//      } else {
+//        return AnyView(list)
+//      }
+//      #endif
+//    }
+//    NavigationView {
+//      NavigationLink("greet", destination: Text("World"))
+//      Text("Hello")
+//    }
+    HStack {
+      Text("Loading...")
+      EnvironmentObjectDemo()
+        .environmentObject(TestEnvironment())
     }
-    .environmentObject(TestEnvironment())
   }
 }
