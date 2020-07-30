@@ -18,10 +18,6 @@
 public struct ToolbarItemGroup<ID, Items> {
   let items: Items
   let _items: [AnyView]
-  public init(_ items: Items) {
-    self.items = items
-    _items = []
-  }
 }
 
 public struct _ToolbarItemGroupProxy<ID, Items> {
@@ -98,9 +94,13 @@ public protocol _AnyToolbarContainer {
   var anyContent: AnyView { get }
 }
 
+public protocol ToolbarDeferredToRenderer {
+  var deferredToolbar: AnyView { get }
+}
+
 public struct _ToolbarContainer<ID, Content, Wrapped>: View where Wrapped: View {
-  @Environment(_navigationToolbarKey) var navigationToolbar
-  @Environment(_navigationTitleKey) var navigationTitle
+  @Environment(\.navigationTitle) var navigationTitle
+  @Environment(\.toolbar) var toolbar
 
   init(id: ID, content: Content, child: Wrapped) {
     (self.id, self.content, self.child) = (id, content, child)
@@ -110,22 +110,35 @@ public struct _ToolbarContainer<ID, Content, Wrapped>: View where Wrapped: View 
   public let content: Content
   public let child: Wrapped
 
-  public var body: Wrapped {
-    child
+  public var body: some View {
+    if let deferredBar = self as? ToolbarDeferredToRenderer {
+      toolbar?.wrappedValue = deferredBar.deferredToolbar
+    }
+    return child
   }
 
-  public var handledByNavigationView: Bool {
-    navigationToolbar != nil
-  }
-
-  public var title: AnyView {
-    print(navigationTitle)
-    return navigationTitle?.wrappedValue ?? AnyView(EmptyView())
+  public var title: Text? {
+    navigationTitle?.wrappedValue
   }
 }
 
 extension _ToolbarContainer: _AnyToolbarContainer where Content: View {
   public var anyContent: AnyView { AnyView(content) }
+}
+
+struct ToolbarKey: EnvironmentKey {
+  public static let defaultValue: Binding<AnyView?>? = nil
+}
+
+extension EnvironmentValues {
+  var toolbar: Binding<AnyView?>? {
+    get {
+      self[ToolbarKey.self]
+    }
+    set {
+      self[ToolbarKey.self] = newValue
+    }
+  }
 }
 
 extension View {

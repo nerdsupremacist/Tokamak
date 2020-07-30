@@ -14,37 +14,45 @@
 //
 //  Created by Jed Fox on 06/30/2020.
 //
-
-class NavigationContext: ObservableObject {
-  @Published var destination: AnyView = AnyView(EmptyView())
-  @Published var title: AnyView?
-  @Published var toolbar: _AnyToolbarContainer?
-}
-
-/// A wrapper around the content of a `NavigationView` to allow `Renderer` overrides.
-public struct _NavigationViewBody<Content>: View where Content: View {
-  public let content: Content
-
-  public var body: Never {
-    neverBody("_NavigationViewBody")
-  }
-}
-
 public struct NavigationView<Content>: View where Content: View {
-  @ObservedObject var context = NavigationContext()
   let content: Content
+
+  @State var destination = AnyView(EmptyView())
+  @State var title: Text? = nil
+  @State var toolbar: AnyView? = nil
 
   public init(@ViewBuilder content: () -> Content) {
     self.content = content()
   }
 
+  public var body: Never {
+    neverBody("NavigationView")
+  }
+}
+
+/// This is a helper class that works around absence of "package private" access control in Swift
+public struct _NavigationViewProxy<Content: View> {
+  public let subject: NavigationView<Content>
+
+  public init(_ subject: NavigationView<Content>) { self.subject = subject }
+
+  public var content: Content { subject.content }
   public var body: some View {
-    print("Buidling navview")
-    return _NavigationViewBody(content: HStack {
+    HStack {
       content
-      context.destination
-    })
-      .environmentObject(context)
+      subject.destination
+      subject.toolbar
+    }
+    .toolbar {
+      ToolbarItem(placement: .navigation) {
+        if let title = subject.title {
+          title
+        }
+      }
+    }
+    .environment(\.navigationDestination, subject.$destination)
+    .environment(\.navigationTitle, subject.$title)
+    .environment(\.toolbar, subject.$toolbar)
   }
 }
 
@@ -52,12 +60,12 @@ struct NavigationDestinationKey: EnvironmentKey {
   public static let defaultValue: Binding<AnyView>? = nil
 }
 
-struct NavigationToolbarKey: EnvironmentKey {
-  public static let defaultValue: Binding<_AnyToolbarContainer?>? = nil
+struct NavigationTitleKey: EnvironmentKey {
+  public static let defaultValue: Binding<Text?>? = nil
 }
 
-struct NavigationTitleKey: EnvironmentKey {
-  public static let defaultValue: Binding<AnyView>? = nil
+struct NavigationToolbarKey: EnvironmentKey {
+  public static let defaultValue: Binding<AnyView?>? = nil
 }
 
 extension EnvironmentValues {
@@ -70,16 +78,7 @@ extension EnvironmentValues {
     }
   }
 
-  var navigationToolbar: Binding<_AnyToolbarContainer?>? {
-    get {
-      self[NavigationToolbarKey.self]
-    }
-    set {
-      self[NavigationToolbarKey.self] = newValue
-    }
-  }
-
-  var navigationTitle: Binding<AnyView>? {
+  var navigationTitle: Binding<Text?>? {
     get {
       self[NavigationTitleKey.self]
     }
@@ -90,5 +89,3 @@ extension EnvironmentValues {
 }
 
 public let _navigationDestinationKey = \EnvironmentValues.navigationDestination
-public let _navigationToolbarKey = \EnvironmentValues.navigationToolbar
-public let _navigationTitleKey = \EnvironmentValues.navigationTitle

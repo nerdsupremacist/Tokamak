@@ -102,6 +102,11 @@ extension ToolbarItemGroup: View {
     _items = children
   }
 
+  init<T1: View>(_ v1: ToolbarItem<ID, T1>) where Items == ToolbarItem<ID, T1> {
+    items = v1
+    _items = [AnyView(v1)]
+  }
+
   init<T1: View, T2: View>(_ v1: ToolbarItem<ID, T1>, _ v2: ToolbarItem<ID, T2>) where Items == (ToolbarItem<ID, T1>, ToolbarItem<ID, T2>) {
     items = (v1, v2)
     _items = [AnyView(v1), AnyView(v2)]

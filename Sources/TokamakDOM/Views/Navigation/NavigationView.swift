@@ -11,11 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 import JavaScriptKit
 import TokamakCore
 
-extension _NavigationViewBody: ViewDeferredToRenderer {
+extension NavigationView: ViewDeferredToRenderer {
   public var deferredBody: AnyView {
     AnyView(HTML("div", [
       "style": """
@@ -23,7 +22,7 @@ extension _NavigationViewBody: ViewDeferredToRenderer {
       width: 100%; height: 100%;
       """,
     ]) {
-      content
+      _NavigationViewProxy(self).body
     })
   }
 }

@@ -78,15 +78,15 @@ let tokamakStyles = """
   flex-shrink: 1;
   flex-grow: 0;
 }
+._tokamak-toolbar-container-toolbar > ._tokamak-toolbar-container-toolbar-item-navigation {
+  margin-right: auto;
+}
 ._tokamak-toolbar-container-toolbar > ._tokamak-toolbar-container-toolbar-item {
   margin-left: auto;
 }
 ._tokamak-toolbar-container-toolbar > ._tokamak-toolbar-container-toolbar-item ~ ._tokamak-toolbar-container-toolbar-item {
   margin-left: unset;
 }
-/*._tokamak-toolbar-container-toolbar > ._tokamak-toolbar-container-toolbar-item:last-child {
-  margin-right: auto;
-}*/
 ._tokamak-toolbar-container-content > *:first-child:not(._tokamak-scrollview) {
   margin-top: 38px;
 }

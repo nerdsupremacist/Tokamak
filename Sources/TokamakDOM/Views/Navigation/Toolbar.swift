@@ -36,16 +36,15 @@ extension ToolbarItem: ViewDeferredToRenderer {
   }
 }
 
-extension _ToolbarContainer: ViewDeferredToRenderer where Content: View {
-  public var deferredBody: AnyView {
+extension _ToolbarContainer: ToolbarDeferredToRenderer where Content: View {
+  public var deferredToolbar: AnyView {
     AnyView(HTML("div", ["class": "_tokamak-toolbar-container"]) {
       HTML("div", ["class": "_tokamak-toolbar-container-toolbar"]) {
-        title
         content
       }
-      HTML("div", ["class": "_tokamak-toolbar-container-content"]) {
-        child
-      }
+//      HTML("div", ["class": "_tokamak-toolbar-container-content"]) {
+//        child
+//      }
     })
   }
 }

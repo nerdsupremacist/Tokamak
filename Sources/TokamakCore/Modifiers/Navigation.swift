@@ -13,13 +13,13 @@
 // limitations under the License.
 
 struct _NavigationTitleWriting<Title, Content>: View
-  where Title: View, Content: View {
-  @EnvironmentObject var context: NavigationContext
+  where Title: StringProtocol, Content: View {
+  @Environment(\.navigationTitle) var context
   let title: Title
   let content: Content
 
   var body: Content {
-    context.title = AnyView(title)
+    context?.wrappedValue = Text(title)
     return content
   }
 }
@@ -30,6 +30,6 @@ extension View {
   }
 
   public func navigationTitle<S>(_ title: S) -> some View where S: StringProtocol {
-    _NavigationTitleWriting(title: Text(title), content: self)
+    _NavigationTitleWriting(title: title, content: self)
   }
 }
