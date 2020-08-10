@@ -58,7 +58,8 @@ public struct ToolbarItem<ID, Content>: View, AnyToolbarItem where Content: View
   public init(id: ID,
               placement: ToolbarItemPlacement = .automatic,
               showsByDefault: Bool = true,
-              @ViewBuilder content: () -> Content) {
+              @ViewBuilder content: () -> Content)
+  {
     self.id = id
     self.placement = placement
     self.showsByDefault = showsByDefault
@@ -72,7 +73,8 @@ public struct ToolbarItem<ID, Content>: View, AnyToolbarItem where Content: View
 
 extension ToolbarItem where ID == () {
   public init(placement: ToolbarItemPlacement = .automatic,
-              @ViewBuilder content: () -> Content) {
+              @ViewBuilder content: () -> Content)
+  {
     self.init(id: (), placement: placement, showsByDefault: true, content: content)
   }
 }
@@ -142,16 +144,23 @@ extension EnvironmentValues {
 }
 
 extension View {
-  @_disfavoredOverload public func toolbar<Content>(@ViewBuilder content: () -> Content) -> some View where Content: View {
+  @_disfavoredOverload
+  public func toolbar<Content>(@ViewBuilder content: () -> Content)
+    -> some View where Content: View
+  {
     _ToolbarContainer(id: (), content: content(), child: self)
   }
 
-  public func toolbar<Items>(@ToolbarContentBuilder <()> items: () -> ToolbarItemGroup<(), Items>) -> some View {
+  public func toolbar<Items>(@ToolbarContentBuilder <()> items: () -> ToolbarItemGroup<(), Items>)
+    -> some View
+  {
     _ToolbarContainer(id: (), content: items(), child: self)
   }
 
-  public func toolbar<Items>(id: String,
-                             @ToolbarContentBuilder <String> items: () -> ToolbarItemGroup<String, Items>) -> some View {
+  public func toolbar<Items>(
+    id: String,
+    @ToolbarContentBuilder <String> items: () -> ToolbarItemGroup<String, Items>
+  ) -> some View {
     _ToolbarContainer(id: id, content: items(), child: self)
   }
 }

@@ -13,7 +13,8 @@
 // limitations under the License.
 
 struct _NavigationTitleWriting<Title, Content>: View
-  where Title: StringProtocol, Content: View {
+  where Title: StringProtocol, Content: View
+{
   @Environment(\.navigationTitle) var context
   let title: Title
   let content: Content

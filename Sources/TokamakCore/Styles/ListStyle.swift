@@ -15,7 +15,10 @@
 //  Created by Carson Katri on 7/5/20.
 //
 
-public protocol ListStyle {}
+public protocol ListStyle {
+  var hasDividers: Bool { get }
+}
+
 /// A protocol implemented on the renderer to create platform-specific list styles.
 public protocol ListStyleDeferredToRenderer {
   func listBody<ListBody>(_ content: ListBody) -> AnyView where ListBody: View
@@ -31,8 +34,7 @@ public extension ListStyleDeferredToRenderer {
   }
 
   func listRow<Row>(_ row: Row) -> AnyView where Row: View {
-    AnyView(row
-      .padding([.trailing, .top, .bottom]))
+    AnyView(row.padding([.trailing, .top, .bottom]))
   }
 
   func sectionHeader<Header>(_ header: Header) -> AnyView where Header: View {
@@ -51,18 +53,27 @@ public extension ListStyleDeferredToRenderer {
 public typealias DefaultListStyle = PlainListStyle
 
 public struct PlainListStyle: ListStyle {
+  public var hasDividers = true
   public init() {}
 }
 
 public struct GroupedListStyle: ListStyle {
+  public var hasDividers = true
   public init() {}
 }
 
 public struct InsetListStyle: ListStyle {
+  public var hasDividers = true
   public init() {}
 }
 
 public struct InsetGroupedListStyle: ListStyle {
+  public var hasDividers = true
+  public init() {}
+}
+
+public struct SidebarListStyle: ListStyle {
+  public var hasDividers = false
   public init() {}
 }
 

@@ -12,12 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(SwiftUI)
-import SwiftUI
-#else
-import TokamakCore
-import TokamakDOM
-#endif
+import TokamakShim
 
 public struct ToggleDemo: View {
   @State var checked = false
@@ -26,7 +21,7 @@ public struct ToggleDemo: View {
     VStack {
       Toggle("Check me!", isOn: $checked)
       Toggle(isOn: Binding(get: { true }, set: { _ in })) {
-        Text("I’m always checked!").foregroundColor(.red).italic()
+        Group { Text("I’m always checked!").italic() }.foregroundColor(.red)
       }
     }
   }

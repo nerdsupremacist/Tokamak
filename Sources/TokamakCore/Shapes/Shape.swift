@@ -47,6 +47,7 @@ public struct FillStyle: Equatable, ShapeStyle {
 }
 
 public struct _ShapeView<Content, Style>: View where Content: Shape, Style: ShapeStyle {
+  @Environment(\.self) public var environment
   @Environment(\.foregroundColor) public var foregroundColor
   public var shape: Content
   public var style: Style
@@ -82,9 +83,16 @@ extension Shape {
     OffsetShape(shape: self, offset: .init(width: x, height: y))
   }
 
-  public func scale(x: CGFloat = 1, y: CGFloat = 1, anchor: UnitPoint = .center) -> ScaledShape<Self> {
-    ScaledShape(shape: self,
-                scale: CGSize(width: x, height: y), anchor: anchor)
+  public func scale(
+    x: CGFloat = 1,
+    y: CGFloat = 1,
+    anchor: UnitPoint = .center
+  ) -> ScaledShape<Self> {
+    ScaledShape(
+      shape: self,
+      scale: CGSize(width: x, height: y),
+      anchor: anchor
+    )
   }
 
   public func scale(_ scale: CGFloat, anchor: UnitPoint = .center) -> ScaledShape<Self> {
@@ -121,7 +129,10 @@ extension Shape {
 }
 
 extension Shape {
-  public func fill<S>(_ content: S, style: FillStyle = FillStyle()) -> some View where S: ShapeStyle {
+  public func fill<S>(
+    _ content: S,
+    style: FillStyle = FillStyle()
+  ) -> some View where S: ShapeStyle {
     _ShapeView(shape: self, style: content, fillStyle: style)
   }
 

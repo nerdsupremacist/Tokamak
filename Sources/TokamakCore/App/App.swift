@@ -15,7 +15,7 @@
 //  Created by Carson Katri on 7/16/20.
 //
 
-import OpenCombine
+import CombineShim
 import Runtime
 
 /// Provides the ability to set the title of the Scene.
@@ -29,10 +29,13 @@ public protocol App: _TitledApp {
   var body: Body { get }
 
   /// Implemented by the renderer to mount the `App`
-  static func _launch(_ app: Self,
-                      _ rootEnvironment: EnvironmentValues)
+  static func _launch(_ app: Self, _ rootEnvironment: EnvironmentValues)
+
   /// Implemented by the renderer to update the `App` on `ScenePhase` changes
-  var _phasePublisher: CurrentValueSubject<ScenePhase, Never> { get }
+  var _phasePublisher: AnyPublisher<ScenePhase, Never> { get }
+
+  /// Implemented by the renderer to update the `App` on `ColorScheme` changes
+  var _colorSchemePublisher: AnyPublisher<ColorScheme, Never> { get }
 
   static func main()
 

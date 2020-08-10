@@ -25,13 +25,24 @@ let package = Package(
       name: "TokamakShim",
       targets: ["TokamakShim"]
     ),
+    .library(
+      name: "TokamakStaticHTML",
+      targets: ["TokamakStaticHTML"]
+    ),
+    .executable(
+      name: "TokamakStaticDemo",
+      targets: ["TokamakStaticDemo"]
+    ),
   ],
   dependencies: [
     // Dependencies declare other packages that this package depends on.
     // .package(url: /* package url */, from: "1.0.0"),
     .package(url: "https://github.com/kateinoigakukun/JavaScriptKit.git", .revision("c90e82f")),
-    .package(url: "https://github.com/MaxDesiatov/Runtime.git", .branch("wasi-build")),
-    .package(url: "https://github.com/MaxDesiatov/OpenCombine.git", .branch("observable-object")),
+    .package(url: "https://github.com/MaxDesiatov/Runtime.git", .branch("wasi-build-5.3")),
+    .package(
+      url: "https://github.com/MaxDesiatov/OpenCombine.git",
+      .branch("observable-object-5.3")
+    ),
   ],
   targets: [
     // Targets are the basic building blocks of a package. A target can define
@@ -39,20 +50,40 @@ let package = Package(
     // Targets can depend on other targets in this package, and on products
     // in packages which this package depends on.
     .target(
+      name: "CombineShim",
+      dependencies: [.product(
+        name: "OpenCombine",
+        package: "OpenCombine",
+        condition: .when(platforms: [.wasi, .linux])
+      )]
+    ),
+    .target(
       name: "TokamakCore",
-      dependencies: ["OpenCombine", "Runtime"]
+      dependencies: ["CombineShim", "Runtime"]
+    ),
+    .target(
+      name: "TokamakStaticHTML",
+      dependencies: [
+        "TokamakCore",
+      ]
+    ),
+    .target(
+      name: "TokamakDOM",
+      dependencies: ["CombineShim", "JavaScriptKit", "TokamakCore", "TokamakStaticHTML"]
+    ),
+    .target(
+      name: "TokamakShim",
+      dependencies: [.target(name: "TokamakDOM", condition: .when(platforms: [.wasi]))]
     ),
     .target(
       name: "TokamakDemo",
       dependencies: ["JavaScriptKit", "TokamakShim"]
     ),
     .target(
-      name: "TokamakDOM",
-      dependencies: ["JavaScriptKit", "TokamakCore"]
-    ),
-    .target(
-      name: "TokamakShim",
-      dependencies: [.target(name: "TokamakDOM", condition: .when(platforms: [.wasi]))]
+      name: "TokamakStaticDemo",
+      dependencies: [
+        "TokamakStaticHTML",
+      ]
     ),
     .target(
       name: "TokamakTestRenderer",

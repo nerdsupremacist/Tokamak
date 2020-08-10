@@ -15,17 +15,17 @@
 //  Created by Carson Katri on 7/19/20.
 //
 
-import OpenCombine
+import CombineShim
 
 public struct _AnyApp: App {
   var app: Any
-  let appType: Any.Type
+  let type: Any.Type
   let bodyClosure: (Any) -> _AnyScene
   let bodyType: Any.Type
 
   init<A: App>(_ app: A) {
     self.app = app
-    appType = A.self
+    type = A.self
     // swiftlint:disable:next force_cast
     bodyClosure = { _AnyScene(($0 as! A).body) }
     bodyType = A.Body.self
@@ -39,8 +39,7 @@ public struct _AnyApp: App {
     fatalError("`_AnyApp` cannot be initialized without an underlying `App` type.")
   }
 
-  public static func _launch(_ app: Self,
-                             _ rootEnvironment: EnvironmentValues) {
+  public static func _launch(_ app: Self, _ rootEnvironment: EnvironmentValues) {
     fatalError("`_AnyApp` cannot be launched. Access underlying `app` value.")
   }
 
@@ -48,7 +47,11 @@ public struct _AnyApp: App {
     fatalError("`title` cannot be set for `AnyApp`. Access underlying `app` value.")
   }
 
-  public var _phasePublisher: CurrentValueSubject<ScenePhase, Never> {
+  public var _phasePublisher: AnyPublisher<ScenePhase, Never> {
     fatalError("`_AnyApp` cannot monitor scenePhase. Access underlying `app` value.")
+  }
+
+  public var _colorSchemePublisher: AnyPublisher<ColorScheme, Never> {
+    fatalError("`_AnyApp` cannot monitor colorScheme. Access underlying `app` value.")
   }
 }

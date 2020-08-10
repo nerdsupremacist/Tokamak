@@ -29,130 +29,138 @@ func title<V>(_ view: V, title: String) -> AnyView where V: View {
   }
 }
 
-struct NavItem: Identifiable {
-  var id: String
-  var destination: AnyView?
+struct NavItem: View {
+  let id: String
+  let destination: AnyView?
 
   init<V>(_ id: String, destination: V) where V: View {
     self.id = id
-    self.destination = title(destination.frame(minWidth: 300), title: id)
+    self.destination = title(destination, title: id)
   }
 
   init(unavailable id: String) {
     self.id = id
+    destination = nil
   }
-}
 
-var outlineGroupDemo: NavItem {
-  if #available(OSX 10.16, iOS 14.0, *) {
-    return NavItem("OutlineGroup", destination: OutlineGroupDemo())
-  } else {
-    return NavItem(unavailable: "OutlineGroup")
+  @ViewBuilder
+  var body: some View {
+    if let dest = destination {
+      NavigationLink(id, destination: dest)
+    } else {
+      #if os(WASI)
+      Text(id)
+      #elseif os(macOS)
+      Text(id).opacity(0.5)
+      #else
+      HStack {
+        Text(id)
+        Spacer()
+        Text("unavailable").opacity(0.5)
+      }
+      #endif
+    }
   }
-}
-
-#if !os(macOS)
-var listDemo: AnyView {
-  if #available(iOS 14.0, *) {
-    return AnyView(ListDemo().listStyle(InsetGroupedListStyle()))
-  } else {
-    return AnyView(ListDemo())
-  }
-}
-#else
-var listDemo = ListDemo()
-#endif
-
-var gridDemo: NavItem {
-  if #available(OSX 10.16, iOS 14.0, *) {
-    return NavItem("Grid", destination: GridDemo())
-  } else {
-    return NavItem(unavailable: "Grid")
-  }
-}
-
-var appStorageDemo: NavItem {
-  if #available(OSX 11.0, iOS 14.0, *) {
-    return NavItem("AppStorage", destination: AppStorageDemo())
-  } else {
-    return NavItem(unavailable: "AppStorage")
-  }
-}
-
-var toolbarDemo: NavItem {
-  if #available(OSX 10.16, *) {
-    return NavItem("Toolbar", destination: ToolbarDemo())
-  } else {
-    return NavItem(unavailable: "Toolbar")
-  }
-}
-
-var links: [NavItem] {
-  [
-    NavItem("Counter", destination:
-      Counter(count: Count(value: 5), limit: 15)
-        .padding()
-        .background(Color(red: 0.9, green: 0.9, blue: 0.9, opacity: 1.0))
-        .border(Color.red, width: 3)),
-    NavItem("ZStack", destination: ZStack {
-      Text("I'm on bottom")
-      Text("I'm forced to the top")
-        .zIndex(1)
-      Text("I'm on top")
-    }.padding(20)),
-    NavItem("ForEach", destination: ForEachDemo()),
-    NavItem("Text", destination: TextDemo()),
-    NavItem("Toggle", destination: ToggleDemo()),
-    NavItem("Path", destination: PathDemo()),
-    NavItem("TextField", destination: TextFieldDemo()),
-    NavItem("Spacer", destination: SpacerDemo()),
-    NavItem("Environment", destination: EnvironmentDemo().font(.system(size: 8))),
-    NavItem("Picker", destination: PickerDemo()),
-    NavItem("List", destination: listDemo),
-    outlineGroupDemo,
-    NavItem("Color", destination: ColorDemo()),
-    appStorageDemo,
-    gridDemo,
-    toolbarDemo,
-  ]
 }
 
 struct TokamakDemoView: View {
   var body: some View {
     NavigationView { () -> AnyView in
       let list = title(
-        List(links) { link in
-          if let dest = link.destination {
-            NavigationLink(link.id, destination: HStack {
-              Spacer()
-              dest
-              Spacer()
-            })
-          } else {
-            #if os(WASI)
-            Text(link.id)
-            #else
-            HStack {
-              Text(link.id)
-              Spacer()
-              Text("unavailable").opacity(0.5)
-            }
-            #endif
+        List {
+          Section(header: Text("Buttons")) {
+            NavItem(
+              "Counter",
+              destination:
+              Counter(count: Count(value: 5), limit: 15)
+                .padding()
+                .background(Color(red: 0.9, green: 0.9, blue: 0.9, opacity: 1.0))
+                .border(Color.red, width: 3)
+                .foregroundColor(.black)
+            )
+            NavItem("ButtonStyle", destination: ButtonStyleDemo())
           }
+          Section(header: Text("Containers")) {
+            NavItem("ForEach", destination: ForEachDemo())
+            if #available(iOS 14.0, *) {
+              #if os(macOS)
+              NavItem("List", destination: ListDemo())
+              #else
+              NavItem("List", destination: ListDemo().listStyle(InsetGroupedListStyle()))
+              #endif
+            } else {
+              NavItem("List", destination: ListDemo())
+            }
+            if #available(iOS 14.0, *) {
+              NavItem("Sidebar", destination: SidebarListDemo().listStyle(SidebarListStyle()))
+            } else {
+              NavItem(unavailable: "Sidebar")
+            }
+            if #available(OSX 10.16, iOS 14.0, *) {
+              NavItem("OutlineGroup", destination: OutlineGroupDemo())
+            } else {
+              NavItem(unavailable: "OutlineGroup")
+            }
+          }
+          Section(header: Text("Layout")) {
+            if #available(OSX 10.16, iOS 14.0, *) {
+              NavItem("Grid", destination: GridDemo())
+            } else {
+              NavItem(unavailable: "Grid")
+            }
+            NavItem("Spacer", destination: SpacerDemo())
+            NavItem("ZStack", destination: ZStack {
+              Text("I'm on bottom")
+              Text("I'm forced to the top")
+                .zIndex(1)
+              Text("I'm on top")
+            }.padding(20))
+          }
+          Section(header: Text("Selectors")) {
+            NavItem("Picker", destination: PickerDemo())
+            NavItem("Toggle", destination: ToggleDemo())
+          }
+          Section(header: Text("Text")) {
+            NavItem("Text", destination: TextDemo())
+            NavItem("TextField", destination: TextFieldDemo())
+          }
+          Section(header: Text("Misc")) {
+            NavItem("Path", destination: PathDemo())
+            NavItem("Environment", destination: EnvironmentDemo().font(.system(size: 8)))
+            NavItem("Color", destination: ColorDemo())
+            if #available(OSX 11.0, iOS 14.0, *) {
+              NavItem("AppStorage", destination: AppStorageDemo())
+            } else {
+              NavItem(unavailable: "AppStorage")
+            }
+            if #available(OSX 11.0, iOS 14.0, *) {
+              NavItem("Redaction", destination: RedactionDemo())
+            } else {
+              NavItem(unavailable: "Redaction")
+            }
+            if #available(OSX 10.16, *) {
+              NavItem("Toolbar", destination: ToolbarDemo())
+            } else {
+              NavItem(unavailable: "Toolbar")
+            }
+          }
+          #if os(WASI)
+          Section(header: Text("TokamakDOM")) {
+            NavItem("DOM reference", destination: DOMRefDemo())
+          }
+          #endif
         }
         .frame(minHeight: 300),
         title: "Demos"
       )
-      #if os(WASI)
-      return AnyView(list)
-      #else
       if #available(iOS 14.0, *) {
-        return AnyView(list
-          .listStyle(SidebarListStyle()))
+        return AnyView(
+          list
+            .listStyle(SidebarListStyle())
+        )
       } else {
         return AnyView(list)
       }
-      #endif
     }
     .environmentObject(TestEnvironment())
   }

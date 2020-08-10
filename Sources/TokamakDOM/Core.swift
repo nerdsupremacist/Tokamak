@@ -43,12 +43,22 @@ public typealias PlainListStyle = TokamakCore.PlainListStyle
 public typealias InsetListStyle = TokamakCore.InsetListStyle
 public typealias GroupedListStyle = TokamakCore.GroupedListStyle
 public typealias InsetGroupedListStyle = TokamakCore.InsetGroupedListStyle
+public typealias SidebarListStyle = TokamakCore.SidebarListStyle
 
 public typealias DefaultPickerStyle = TokamakCore.DefaultPickerStyle
 public typealias PopUpButtonPickerStyle = TokamakCore.PopUpButtonPickerStyle
 public typealias RadioGroupPickerStyle = TokamakCore.RadioGroupPickerStyle
 public typealias SegmentedPickerStyle = TokamakCore.SegmentedPickerStyle
 public typealias WheelPickerStyle = TokamakCore.WheelPickerStyle
+
+public typealias ToggleStyle = TokamakCore.ToggleStyle
+public typealias ToggleStyleConfiguration = TokamakCore.ToggleStyleConfiguration
+
+public typealias ButtonStyle = TokamakCore.ButtonStyle
+public typealias ButtonStyleConfiguration = TokamakCore.ButtonStyleConfiguration
+public typealias DefaultButtonStyle = TokamakCore.DefaultButtonStyle
+
+public typealias ColorScheme = TokamakCore.ColorScheme
 
 // MARK: Shapes
 
@@ -96,6 +106,12 @@ public typealias TextField = TokamakCore.TextField
 public typealias Toggle = TokamakCore.Toggle
 public typealias VStack = TokamakCore.VStack
 public typealias ZStack = TokamakCore.ZStack
+
+// MARK: Toolbar
+
+public typealias ToolbarItem = TokamakCore.ToolbarItem
+public typealias ToolbarItemPlacement = TokamakCore.ToolbarItemPlacement
+public typealias ToolbarItemGroup = TokamakCore.ToolbarItemGroup
 
 // MARK: Special Views
 

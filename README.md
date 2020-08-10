@@ -4,22 +4,25 @@
 
 ![CI status](https://github.com/swiftwasm/Tokamak/workflows/CI/badge.svg?branch=main)
 
-At the moment Tokamak implements a very basic subset of SwiftUI. Its DOM renderer supports
-a few view types and modifiers (you can check the current list in [the progress document](docs/progress.md)),
-and a new `HTML` view for constructing arbitrary HTML. The long-term goal of Tokamak is to implement
-as much of SwiftUI API as possible and to provide a few more helpful additions that simplify HTML
-and CSS interactions.
+At the moment Tokamak implements a very basic subset of SwiftUI. Its DOM renderer supports a few
+view types and modifiers (you can check the current list in [the progress
+document](docs/progress.md)), and a new `HTML` view for constructing arbitrary HTML. The long-term
+goal of Tokamak is to implement as much of SwiftUI API as possible and to provide a few more helpful
+additions that simplify HTML and CSS interactions.
 
 If there's some SwiftUI API that's missing but you'd like to use it, please review the existing
-[issues](https://github.com/swiftwasm/Tokamak/issues) and [PRs](https://github.com/swiftwasm/Tokamak/pulls)
-to get more details about the current status, or [create a new issue](https://github.com/swiftwasm/Tokamak/issues/new)
-to let us prioritize the development based on the demand. We also try to make the development of
-views and modifiers easier (with the help from the `HTML` view, see [the example
-below](https://github.com/swiftwasm/Tokamak#arbitrary-html)), so pull requests are very welcome! Don't
-forget to check [the "Contributing" section](https://github.com/swiftwasm/Tokamak#contributing) first.
+[issues](https://github.com/swiftwasm/Tokamak/issues) and
+[PRs](https://github.com/swiftwasm/Tokamak/pulls) to get more details about the current status, or
+[create a new issue](https://github.com/swiftwasm/Tokamak/issues/new) to let us prioritize the
+development based on the demand. We also try to make the development of views and modifiers easier
+(with the help from the `HTML` view, see [the example
+below](https://github.com/swiftwasm/Tokamak#arbitrary-html)), so pull requests are very welcome!
+Don't forget to check [the "Contributing"
+section](https://github.com/swiftwasm/Tokamak#contributing) first.
 
-If you'd like to participate in the growing [SwiftWasm](https://swiftwasm.org) community, you're also very
-welcome to join the `#webassembly` channel in [the SwiftPM Slack](https://swift-package-manager.herokuapp.com/).
+If you'd like to participate in the growing [SwiftWasm](https://swiftwasm.org) community, you're
+also very welcome to join the `#webassembly` channel in [the SwiftPM
+Slack](https://swift-package-manager.herokuapp.com/).
 
 ### Example code
 
@@ -48,23 +51,18 @@ struct Counter: View {
     }
   }
 }
-```
 
-You can then render your view in any DOM node captured with
-[JavaScriptKit](https://github.com/kateinoigakukun/JavaScriptKit/), just
-pass it as an argument to the `DOMRenderer` initializer together with your view:
+struct CounterApp: App {
+  var body: some Scene {
+    WindowGroup("Counter Demo") {
+      Counter(count: 5, limit: 15)
+    }
+  }
+}
 
-```swift
-import JavaScriptKit
-import TokamakDOM
-
-let document = JSObjectRef.global.document.object!
-
-let divElement = document.createElement!("div").object!
-let renderer = DOMRenderer(Counter(count: 5, limit: 15), divElement)
-
-let body = document.body.object!
-_ = body.appendChild!(divElement)
+// @main attribute is not supported in SwiftPM apps.
+// See https://bugs.swift.org/browse/SR-12683 for more details.
+CounterApp.main()
 ```
 
 ### Arbitrary HTML
@@ -108,9 +106,9 @@ app.
 ## Requirements for app developers
 
 - macOS 10.15 and Xcode 11.4/11.5/11.6 for macOS. Xcode betas are currently not supported. You can have
-those installed, but please make sure you use 
-[`xcode-select`](https://developer.apple.com/library/archive/technotes/tn2339/_index.html#//apple_ref/doc/uid/DTS40014588-CH1-HOW_DO_I_SELECT_THE_DEFAULT_VERSION_OF_XCODE_TO_USE_FOR_MY_COMMAND_LINE_TOOLS_) 
-to point it to a release version of Xcode.
+  those installed, but please make sure you use
+  [`xcode-select`](https://developer.apple.com/library/archive/technotes/tn2339/_index.html#//apple_ref/doc/uid/DTS40014588-CH1-HOW_DO_I_SELECT_THE_DEFAULT_VERSION_OF_XCODE_TO_USE_FOR_MY_COMMAND_LINE_TOOLS_)
+  to point it to a release version of Xcode.
 - [Swift 5.2 or later](https://swift.org/download/) for Linux.
 
 ## Requirements for app users
@@ -128,7 +126,7 @@ Not all of these were tested though, compatibility reports are very welcome!
 
 Tokamak relies on [`carton`](https://carton.dev) as a primary build tool. As a part of these steps
 you'll install `carton` via [Homebrew](https://brew.sh/) on macOS (unfortunately you'll have to build
-it manually on Linux). Assuming you already have Homebrew installed, you can create a new Tokamak 
+it manually on Linux). Assuming you already have Homebrew installed, you can create a new Tokamak
 app by following these steps:
 
 1. Install `carton`:
@@ -156,15 +154,15 @@ carton init --template tokamak
 ```
 
 4. Build the project and start the development server, `carton dev` can be kept running
-during development:
+   during development:
 
 ```
 carton dev
 ```
 
 5. Open [http://127.0.0.1:8080/](http://127.0.0.1:8080/) in your browser to see the app
-running. You can edit the app source code in your favorite editor and save it, `carton` 
-will immediately rebuild the app and reload all browser tabs that have the app open.
+   running. You can edit the app source code in your favorite editor and save it, `carton`
+   will immediately rebuild the app and reload all browser tabs that have the app open.
 
 You can also clone this repository and run `carton dev` in its root directory. This
 will build the demo app that shows almost all of the currently implemented APIs.
@@ -174,49 +172,48 @@ will build the demo app that shows almost all of the currently implemented APIs.
 ### Modular structure
 
 Tokamak is built with modularity in mind, providing a cross-platform `TokamakCore` module and
-separate modules for platform-specific renderers. Currently, the only available renderer module
-is `TokamakDOM`, but we intend to provide other renderers in the future, such as `TokamakHTML`
-for static websites and server-side rendering. Tokamak users only need to import a renderer module
-they would like to use, while `TokamakCore` is hidden as an "internal" `Tokamak` package target.
-Unfortunately, Swift does not allow us to specify that certain symbols in `TokamakCore` are private
-to a package, but they need to stay `public` for renderer modules to get access to them. Thus, the
-current workaround is to mark those symbols with underscores in their names to indicate this. It
-can be formulated as these "rules":
+separate modules for platform-specific renderers. Currently, the only available renderer modules are
+`TokamakDOM` and `TokamakStaticHTML`, the latter can be used for static websites and server-side
+rendering. If you'd like to implement your own custom renderer, please refer to our [renderers
+guide](docs/RenderersGuide.md) for more details.
 
-1. If a symbol is restricted to a module and has no `public` access control, no need for an underscore.
-2. If a symbol is part of a public renderer module API (e.g. `TokamakDOM`), no need for an underscore,
-   users may use those symbols directly, and it is re-exported from `TokamakCore` by the renderer module
-   via `public typealias`.
-3. If a function or a type have `public` on them only by necessity to make them available in `TokamakDOM`,
-   but unavailable to users (or not intended for public use), underscore is needed to indicate that.
+Tokamak users only need to import a renderer module they would like to use, while
+`TokamakCore` is hidden as an "internal" `Tokamak` package target. Unfortunately, Swift does not
+allow us to specify that certain symbols in `TokamakCore` are private to a package, but they need to
+stay `public` for renderer modules to get access to them. Thus, the current workaround is to mark
+those symbols with underscores in their names to indicate this. It can be formulated as these
+"rules":
 
-The benefit of separate modules is that they allow us to provide separate renderers for different platforms.
-Users can pick and choose what they want to use, e.g. purely static websites would use only `TokamakHTML`,
-single-page apps would use `TokamakDOM`, maybe in conjuction with `TokamakHTML` for pre-rendering. As we'd
-like to try to implement a native renderer for Android at some point, probably in a separate `TokamakAndroid`
-module, Android apps would use `TokamakAndroid` with no need to be aware of any of the web modules.
+1. If a symbol is restricted to a module and has no `public` access control, no need for an
+   underscore.
+2. If a symbol is part of a public renderer module API (e.g. `TokamakDOM`), no need for an
+   underscore, users may use those symbols directly, and it is re-exported from `TokamakCore` by the
+   renderer module via `public typealias`.
+3. If a function or a type have `public` on them only by necessity to make them available in
+   `TokamakDOM`, but unavailable to users (or not intended for public use), underscore is needed to
+   indicate that.
 
-### Sponsorship
-
-If this library saved you any amount of time or money, please consider [sponsoring
-the work of its maintainer](https://github.com/sponsors/MaxDesiatov). While some of the
-sponsorship tiers give you priority support or even consulting time, any amount is
-appreciated and helps in maintaining the project.
+The benefit of separate modules is that they allow us to provide separate renderers for different
+platforms. Users can pick and choose what they want to use, e.g. purely static websites would use
+only `TokamakStaticHTML`, single-page apps would use `TokamakDOM`, maybe in conjuction with
+`TokamakStaticHTML` for pre-rendering. As we'd like to try to implement a native renderer for
+Android at some point, probably in a separate `TokamakAndroid` module, Android apps would use
+`TokamakAndroid` with no need to be aware of any of the web modules.
 
 ### Coding Style
 
-This project uses [SwiftFormat](https://github.com/nicklockwood/SwiftFormat)
-and [SwiftLint](https://github.com/realm/SwiftLint) to
-enforce formatting and coding style. We encourage you to run SwiftFormat within
-a local clone of the repository in whatever way works best for you either
-manually or automatically via an [Xcode
-extension](https://github.com/nicklockwood/SwiftFormat#xcode-source-editor-extension),
-[build phase](https://github.com/nicklockwood/SwiftFormat#xcode-build-phase) or
-[git pre-commit
-hook](https://github.com/nicklockwood/SwiftFormat#git-pre-commit-hook) etc.
+This project uses [SwiftFormat](https://github.com/nicklockwood/SwiftFormat) and
+[SwiftLint](https://github.com/realm/SwiftLint) to enforce formatting and coding style. SwiftFormat
+0.45.3 and SwiftLint 0.39.2 or later versions are recommended. We encourage you to run SwiftFormat
+and SwiftLint within a local clone of the repository in whatever way works best for you. You can do
+that either manually, or automatically with VSCode extensions for
+[SwiftFormat](https://github.com/vknabel/vscode-swiftformat) and
+[SwiftLint](https://github.com/vknabel/vscode-swiftlint) respectively, or with the [Xcode
+extension](https://github.com/nicklockwood/SwiftFormat#xcode-source-editor-extension), or [build
+phase](https://github.com/nicklockwood/SwiftFormat#xcode-build-phase).
 
-To guarantee that these tools run before you commit your changes on macOS, you're encouraged
-to run this once to set up the [pre-commit](https://pre-commit.com/) hook:
+To guarantee that these tools run before you commit your changes on macOS, you're encouraged to run
+this once to set up the [pre-commit](https://pre-commit.com/) hook:
 
 ```
 brew bundle # installs SwiftLint, SwiftFormat and pre-commit
@@ -236,6 +233,13 @@ This project adheres to the [Contributor Covenant Code of
 Conduct](https://github.com/swiftwasm/Tokamak/blob/main/CODE_OF_CONDUCT.md).
 By participating, you are expected to uphold this code. Please report
 unacceptable behavior to conduct@tokamak.dev.
+
+### Sponsorship
+
+If this library saved you any amount of time or money, please consider [sponsoring
+the work of its maintainer](https://github.com/sponsors/MaxDesiatov). While some of the
+sponsorship tiers give you priority support or even consulting time, any amount is
+appreciated and helps in maintaining the project.
 
 ## Maintainers
 

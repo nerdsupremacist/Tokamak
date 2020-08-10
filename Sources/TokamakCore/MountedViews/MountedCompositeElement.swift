@@ -15,38 +15,36 @@
 //  Created by Carson Katri on 7/19/20.
 //
 
-import OpenCombine
+import CombineShim
 
-class MountedCompositeElement<R: Renderer>: MountedElement<R>, Hashable {
-  static func == (lhs: MountedCompositeElement<R>,
-                  rhs: MountedCompositeElement<R>) -> Bool {
+class MountedCompositeElement<R: Renderer>: MountedElement<R> {
+  let parentTarget: R.TargetType
+
+  var state = [Any]()
+  var subscriptions = [AnyCancellable]()
+
+  init<A: App>(_ app: A, _ parentTarget: R.TargetType, _ environmentValues: EnvironmentValues) {
+    self.parentTarget = parentTarget
+    super.init(_AnyApp(app), environmentValues)
+  }
+
+  init(_ scene: _AnyScene, _ parentTarget: R.TargetType, _ environmentValues: EnvironmentValues) {
+    self.parentTarget = parentTarget
+    super.init(scene, environmentValues)
+  }
+
+  init(_ view: AnyView, _ parentTarget: R.TargetType, _ environmentValues: EnvironmentValues) {
+    self.parentTarget = parentTarget
+    super.init(view, environmentValues)
+  }
+}
+
+extension MountedCompositeElement: Hashable {
+  static func == (lhs: MountedCompositeElement<R>, rhs: MountedCompositeElement<R>) -> Bool {
     lhs === rhs
   }
 
   func hash(into hasher: inout Hasher) {
     hasher.combine(ObjectIdentifier(self))
-  }
-
-  var mountedChildren = [MountedElement<R>]()
-  let parentTarget: R.TargetType
-
-  var state = [Any]()
-  var subscriptions = [AnyCancellable]()
-  var environmentValues: EnvironmentValues
-
-  init(_ app: _AnyApp,
-       _ parentTarget: R.TargetType,
-       _ environmentValues: EnvironmentValues) {
-    self.parentTarget = parentTarget
-    self.environmentValues = environmentValues
-    super.init(app)
-  }
-
-  init(_ view: AnyView,
-       _ parentTarget: R.TargetType,
-       _ environmentValues: EnvironmentValues) {
-    self.parentTarget = parentTarget
-    self.environmentValues = environmentValues
-    super.init(view)
   }
 }

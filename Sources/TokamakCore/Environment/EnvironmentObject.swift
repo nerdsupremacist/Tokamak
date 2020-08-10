@@ -15,10 +15,11 @@
 //  Created by Carson Katri on 7/7/20.
 //
 
-import OpenCombine
+import CombineShim
 
 @propertyWrapper public struct EnvironmentObject<ObjectType>: DynamicProperty
-  where ObjectType: ObservableObject {
+  where ObjectType: ObservableObject
+{
   @dynamicMemberLookup public struct Wrapper {
     internal let root: ObjectType
     public subscript<Subject>(

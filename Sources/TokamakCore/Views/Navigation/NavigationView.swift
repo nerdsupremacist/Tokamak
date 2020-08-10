@@ -14,12 +14,15 @@
 //
 //  Created by Jed Fox on 06/30/2020.
 //
+
+final class NavigationContext: ObservableObject {
+  @Published var destination = NavigationLinkDestination(EmptyView())
+}
+
 public struct NavigationView<Content>: View where Content: View {
   let content: Content
 
-  @State var destination = AnyView(EmptyView())
-  @State var title: Text? = nil
-  @State var toolbar: AnyView? = nil
+  @ObservedObject var context = NavigationContext()
 
   public init(@ViewBuilder content: () -> Content) {
     self.content = content()
@@ -36,23 +39,14 @@ public struct _NavigationViewProxy<Content: View> {
 
   public init(_ subject: NavigationView<Content>) { self.subject = subject }
 
-  public var content: Content { subject.content }
-  public var body: some View {
-    HStack {
-      content
-      subject.destination
-      subject.toolbar
-    }
-    .toolbar {
-      ToolbarItem(placement: .navigation) {
-        if let title = subject.title {
-          title
-        }
-      }
-    }
-    .environment(\.navigationDestination, subject.$destination)
-    .environment(\.navigationTitle, subject.$title)
-    .environment(\.toolbar, subject.$toolbar)
+  public var content: some View {
+    subject.content
+      .environmentObject(subject.context)
+  }
+
+  public var destination: some View {
+    subject.context.destination.view
+      .environmentObject(subject.context)
   }
 }
 
