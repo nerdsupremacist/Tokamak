@@ -11,21 +11,23 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+//  Created by Carson Katri on 8/11/20.
+//
 
-struct NavigationTitleKey: PreferenceKey {
-  static let defaultValue = AnyView(EmptyView())
-  static func reduce(value: inout AnyView, nextValue: () -> AnyView) {
-    value = nextValue()
-  }
+public protocol PreferenceKey {
+  associatedtype Value
+  static var defaultValue: Value { get }
+  static func reduce(value: inout Value, nextValue: () -> Value)
+  static var _includesRemovedValues: Bool { get }
+  static var _isReadableByHost: Bool { get }
 }
 
-extension View {
-  @available(*, deprecated, renamed: "navigationTitle(_:)")
-  public func navigationBarTitle<S>(_ title: S) -> some View where S: StringProtocol {
-    navigationTitle(title)
-  }
+extension PreferenceKey where Value: ExpressibleByNilLiteral {
+  public static var defaultValue: Value { nil }
+}
 
-  public func navigationTitle<S>(_ title: S) -> some View where S: StringProtocol {
-    preference(key: NavigationTitleKey.self, value: AnyView(Text(title)))
-  }
+extension PreferenceKey {
+  public static var _includesRemovedValues: Bool { false }
+  public static var _isReadableByHost: Bool { false }
 }
