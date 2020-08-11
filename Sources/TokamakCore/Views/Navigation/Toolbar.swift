@@ -15,6 +15,10 @@
 //  Created by Carson Katri on 7/7/20.
 //
 
+final class ToolbarContext: ObservableObject {
+  @Published var toolbar: AnyView = AnyView(EmptyView())
+}
+
 public struct ToolbarItemGroup<ID, Items> {
   let items: Items
   let _items: [AnyView]
@@ -101,8 +105,8 @@ public protocol ToolbarDeferredToRenderer {
 }
 
 public struct _ToolbarContainer<ID, Content, Wrapped>: View where Wrapped: View {
-  @Environment(\.navigationTitle) var navigationTitle
-  @Environment(\.toolbar) var toolbar
+  @EnvironmentObject var navigationContext: NavigationContext
+  @EnvironmentObject var toolbarContext: ToolbarContext
 
   init(id: ID, content: Content, child: Wrapped) {
     (self.id, self.content, self.child) = (id, content, child)
@@ -114,33 +118,18 @@ public struct _ToolbarContainer<ID, Content, Wrapped>: View where Wrapped: View 
 
   public var body: some View {
     if let deferredBar = self as? ToolbarDeferredToRenderer {
-      toolbar?.wrappedValue = deferredBar.deferredToolbar
+      toolbarContext.toolbar = deferredBar.deferredToolbar
     }
     return child
   }
 
-  public var title: Text? {
-    navigationTitle?.wrappedValue
+  public var title: AnyView {
+    navigationContext.title
   }
 }
 
 extension _ToolbarContainer: _AnyToolbarContainer where Content: View {
   public var anyContent: AnyView { AnyView(content) }
-}
-
-struct ToolbarKey: EnvironmentKey {
-  public static let defaultValue: Binding<AnyView?>? = nil
-}
-
-extension EnvironmentValues {
-  var toolbar: Binding<AnyView?>? {
-    get {
-      self[ToolbarKey.self]
-    }
-    set {
-      self[ToolbarKey.self] = newValue
-    }
-  }
 }
 
 extension View {

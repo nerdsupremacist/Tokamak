@@ -15,17 +15,20 @@
 struct _NavigationTitleWriting<Title, Content>: View
   where Title: StringProtocol, Content: View
 {
-  @Environment(\.navigationTitle) var context
+  @EnvironmentObject var navigationContext: NavigationContext
   let title: Title
   let content: Content
 
-  var body: Content {
-    context?.wrappedValue = Text(title)
-    return content
+  var body: some View {
+    content
+      .onAppear {
+        navigationContext.title = AnyView(Text(title))
+      }
   }
 }
 
 extension View {
+  @available(*, deprecated, renamed: "navigationTitle(_:)")
   public func navigationBarTitle<S>(_ title: S) -> some View where S: StringProtocol {
     navigationTitle(title)
   }

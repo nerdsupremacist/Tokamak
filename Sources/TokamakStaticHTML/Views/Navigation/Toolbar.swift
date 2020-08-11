@@ -34,13 +34,13 @@ extension ToolbarItem: ViewDeferredToRenderer {
 
 extension _ToolbarContainer: ToolbarDeferredToRenderer where Content: View {
   public var deferredToolbar: AnyView {
-    AnyView(HTML("div", ["class": "_tokamak-toolbar-container"]) {
-      HTML("div", ["class": "_tokamak-toolbar-container-toolbar"]) {
-        content
-      }
+//    AnyView(HTML("div", ["class": "_tokamak-toolbar-container"]) {
+    AnyView(HTML("div", ["class": "_tokamak-toolbar-container-toolbar"]) {
+      content
+    })
 //      HTML("div", ["class": "_tokamak-toolbar-container-content"]) {
 //        child
 //      }
-    })
+//    })
   }
 }

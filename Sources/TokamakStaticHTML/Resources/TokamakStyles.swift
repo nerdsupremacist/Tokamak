@@ -68,6 +68,7 @@ public let tokamakStyles = """
   box-sizing: border-box;
   background-color: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: row;
@@ -133,6 +134,16 @@ public let tokamakStyles = """
   flex-grow: 1;
   height: 100%;
 }
+._tokamak-navigationview-body {
+  width: 100%;
+  height: 100%;
+}
+._tokamak-navigationview-with-toolbar > ._tokamak-navigationview-content {
+  margin-top: 48px;
+}
+._tokamak-navigationview-with-toolbar > ._tokamak-toolbar-container {
+  display: none;
+}
 
 ._tokamak-securefield,
 ._tokamak-textfield-default,
@@ -149,6 +160,11 @@ public let tokamakStyles = """
   ._tokamak-disclosuregroup-chevron {
     border-right-color: rgba(255, 255, 255, 0.25);
     border-top-color: rgba(255, 255, 255, 0.25);
+  }
+
+  ._tokamak-toolbar-container-toolbar {
+    background-color: rgba(36, 36, 36, 0.5);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
   }
 }
 """

@@ -17,12 +17,14 @@
 
 final class NavigationContext: ObservableObject {
   @Published var destination = NavigationLinkDestination(EmptyView())
+  @Published var title = AnyView(EmptyView())
 }
 
 public struct NavigationView<Content>: View where Content: View {
   let content: Content
 
   @ObservedObject var context = NavigationContext()
+  @ObservedObject var toolbarContext = ToolbarContext()
 
   public init(@ViewBuilder content: () -> Content) {
     self.content = content()
@@ -42,44 +44,20 @@ public struct _NavigationViewProxy<Content: View> {
   public var content: some View {
     subject.content
       .environmentObject(subject.context)
+      .environmentObject(subject.toolbarContext)
   }
 
   public var destination: some View {
     subject.context.destination.view
       .environmentObject(subject.context)
-  }
-}
-
-struct NavigationDestinationKey: EnvironmentKey {
-  public static let defaultValue: Binding<AnyView>? = nil
-}
-
-struct NavigationTitleKey: EnvironmentKey {
-  public static let defaultValue: Binding<Text?>? = nil
-}
-
-struct NavigationToolbarKey: EnvironmentKey {
-  public static let defaultValue: Binding<AnyView?>? = nil
-}
-
-extension EnvironmentValues {
-  var navigationDestination: Binding<AnyView>? {
-    get {
-      self[NavigationDestinationKey.self]
-    }
-    set {
-      self[NavigationDestinationKey.self] = newValue
-    }
+      .environmentObject(subject.toolbarContext)
   }
 
-  var navigationTitle: Binding<Text?>? {
-    get {
-      self[NavigationTitleKey.self]
-    }
-    set {
-      self[NavigationTitleKey.self] = newValue
+  public var toolbar: AnyView? {
+    if subject.toolbarContext.toolbar.view is EmptyView {
+      return nil
+    } else {
+      return subject.toolbarContext.toolbar
     }
   }
 }
-
-public let _navigationDestinationKey = \EnvironmentValues.navigationDestination
