@@ -17,12 +17,11 @@ import TokamakCore
 extension NavigationView: ViewDeferredToRenderer {
   public var deferredBody: AnyView {
     let proxy = _NavigationViewProxy(self)
-    print(proxy.toolbar)
     return AnyView(HTML("div", [
       "class": "_tokamak-navigationview \(proxy.toolbar != nil ? "_tokamak-navigationview-with-toolbar" : "")",
     ]) {
       proxy.toolbar
-      proxy.content
+      proxy
       HTML("div", [
         "class": "_tokamak-navigationview-content",
       ]) {

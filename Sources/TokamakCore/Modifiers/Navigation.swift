@@ -13,8 +13,8 @@
 // limitations under the License.
 
 struct NavigationTitleKey: PreferenceKey {
-  static let defaultValue = AnyView(EmptyView())
-  static func reduce(value: inout AnyView, nextValue: () -> AnyView) {
+  static let defaultValue: String? = nil
+  static func reduce(value: inout String?, nextValue: () -> String?) {
     value = nextValue()
   }
 }
@@ -26,6 +26,6 @@ extension View {
   }
 
   public func navigationTitle<S>(_ title: S) -> some View where S: StringProtocol {
-    preference(key: NavigationTitleKey.self, value: AnyView(Text(title)))
+    preference(key: NavigationTitleKey.self, value: String(title))
   }
 }

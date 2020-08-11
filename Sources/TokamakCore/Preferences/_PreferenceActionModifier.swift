@@ -41,6 +41,13 @@ extension _PreferenceActionModifier: PreferenceReader {
     cancellable = store.subscribe(to: Key.self)?
       .compactMap { $0 }
       .sink(receiveValue: action)
+//    action(store.value(forKey: Key.self))
+  }
+}
+
+extension ModifiedContent: PreferenceReader where Modifier: PreferenceReader {
+  mutating func setupSubscription(on store: PreferenceStore) {
+    modifier.setupSubscription(on: store)
   }
 }
 

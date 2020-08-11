@@ -17,14 +17,14 @@
 
 final class NavigationContext: ObservableObject {
   @Published var destination = NavigationLinkDestination(EmptyView())
-  @Published var title = AnyView(EmptyView())
+  @Published var title: String? = nil
+  @Published var toolbar = AnyView(EmptyView())
 }
 
 public struct NavigationView<Content>: View where Content: View {
   let content: Content
 
   @ObservedObject var context = NavigationContext()
-  @ObservedObject var toolbarContext = ToolbarContext()
 
   public init(@ViewBuilder content: () -> Content) {
     self.content = content()
@@ -36,28 +36,28 @@ public struct NavigationView<Content>: View where Content: View {
 }
 
 /// This is a helper class that works around absence of "package private" access control in Swift
-public struct _NavigationViewProxy<Content: View> {
+public struct _NavigationViewProxy<Content: View>: View {
   public let subject: NavigationView<Content>
 
   public init(_ subject: NavigationView<Content>) { self.subject = subject }
 
-  public var content: some View {
+  public var title: String? { subject.context.title }
+
+  public var body: some View {
     subject.content
       .environmentObject(subject.context)
-      .environmentObject(subject.toolbarContext)
+      .onPreferenceChange(NavigationTitleKey.self) {
+        subject.context.title = $0
+      }
+      .onPreferenceChange(ToolbarKey.self) {
+        subject.context.toolbar = $0.content
+      }
   }
 
   public var destination: some View {
     subject.context.destination.view
       .environmentObject(subject.context)
-      .environmentObject(subject.toolbarContext)
   }
 
-  public var toolbar: AnyView? {
-    if subject.toolbarContext.toolbar.view is EmptyView {
-      return nil
-    } else {
-      return subject.toolbarContext.toolbar
-    }
-  }
+  public var toolbar: AnyView { subject.context.toolbar }
 }

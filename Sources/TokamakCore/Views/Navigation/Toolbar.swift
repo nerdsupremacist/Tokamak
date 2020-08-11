@@ -15,8 +15,22 @@
 //  Created by Carson Katri on 7/7/20.
 //
 
-final class ToolbarContext: ObservableObject {
-  @Published var toolbar: AnyView = AnyView(EmptyView())
+struct ToolbarKey: PreferenceKey {
+  static let defaultValue = ToolbarValue(EmptyView())
+  static func reduce(value: inout ToolbarValue, nextValue: () -> ToolbarValue) {
+    value = nextValue()
+  }
+
+  final class ToolbarValue: Equatable {
+    let content: AnyView
+    init<V>(_ view: V) where V: View {
+      content = AnyView(view)
+    }
+
+    static func == (lhs: ToolbarValue, rhs: ToolbarValue) -> Bool {
+      lhs === rhs
+    }
+  }
 }
 
 public struct ToolbarItemGroup<ID, Items> {
@@ -106,7 +120,7 @@ public protocol ToolbarDeferredToRenderer {
 
 public struct _ToolbarContainer<ID, Content, Wrapped>: View where Wrapped: View {
   @EnvironmentObject var navigationContext: NavigationContext
-  @EnvironmentObject var toolbarContext: ToolbarContext
+  @State private var navigationTitle: String?
 
   init(id: ID, content: Content, child: Wrapped) {
     (self.id, self.content, self.child) = (id, content, child)
@@ -117,14 +131,26 @@ public struct _ToolbarContainer<ID, Content, Wrapped>: View where Wrapped: View 
   public let child: Wrapped
 
   public var body: some View {
+    let bar: AnyView
     if let deferredBar = self as? ToolbarDeferredToRenderer {
-      toolbarContext.toolbar = deferredBar.deferredToolbar
+      bar = deferredBar.deferredToolbar
+    } else {
+      bar = AnyView(EmptyView())
     }
     return child
+      .transformPreference(ToolbarKey.self) {
+        $0 = ToolbarKey.ToolbarValue(bar)
+      }
+      .onPreferenceChange(NavigationTitleKey.self) {
+        navigationTitle = $0
+      }
   }
 
-  public var title: AnyView {
-    navigationContext.title
+  @ViewBuilder
+  public var title: some View {
+    if let text = navigationTitle {
+      Text(text)
+    }
   }
 }
 

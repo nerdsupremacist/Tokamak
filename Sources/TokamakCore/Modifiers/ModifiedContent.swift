@@ -17,7 +17,7 @@ public struct ModifiedContent<Content, Modifier> {
   @Environment(\.self) public var environment
   public typealias Body = Never
   public private(set) var content: Content
-  public private(set) var modifier: Modifier
+  public internal(set) var modifier: Modifier
 
   public init(content: Content, modifier: Modifier) {
     self.content = content

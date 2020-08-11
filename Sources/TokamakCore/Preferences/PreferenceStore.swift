@@ -17,32 +17,72 @@
 
 import CombineShim
 
-final class PreferenceStore {
-  private(set) var values: [ObjectIdentifier: Any] = [:]
-  var subjects: [ObjectIdentifier: CurrentValueSubject<Any, Never>] = [:]
+public final class PreferenceStore {
+  private var values: [ObjectIdentifier: [Any]] = [:]
+//  private var keyMap: [ObjectIdentifier: _AnyPreferenceKey.Type] = [:]
+  private var subjects: [ObjectIdentifier: CurrentValueSubject<Any, Never>] = [:]
 
   typealias PreferencePublisher<K> = Publishers.Map<CurrentValueSubject<Any, Never>, K.Value?>
     where K: PreferenceKey
   func subscribe<K>(to key: K.Type) -> PreferencePublisher<K>?
-    where K: PreferenceKey
+    where K: PreferenceKey, K.Value: Equatable
   {
-    subjects[ObjectIdentifier(K.self)]?.map { $0 as? K.Value }
+    let id = ObjectIdentifier(K.self)
+    if let subject = subjects[id] {
+      return subject.map { $0 as? K.Value }
+    } else {
+      subjects[id] = CurrentValueSubject(value(forKey: key) as Any)
+      return subjects[id]?.map { $0 as? K.Value }
+    }
   }
 
   func setValue<K>(_ value: K.Value, forKey key: K.Type)
     where K: PreferenceKey
   {
     let id = ObjectIdentifier(key)
-    values[id] = value as Any
-    subjects[id]?.send(value as Any)
+    var valueList = values[id] ?? [Any]()
+    valueList.append(value)
+    values[id] = valueList
+//    keyMap[id] = key
+    subjects[id]?.send(self.value(forKey: key) as Any)
+  }
+
+  func setValue<K>(_ value: K.Value, forKey key: K.Type)
+    where K: PreferenceKey, K.Value: Equatable
+  {
+    let id = ObjectIdentifier(key)
+    let prevValue = self.value(forKey: key)
+    var valueList = values[id] ?? [Any]()
+    valueList.append(value)
+    values[id] = valueList
+    let res = self.value(forKey: key)
+    if res != prevValue {
+      subjects[id]?.send(res as Any)
+    }
   }
 
   func value<K>(forKey key: K.Type) -> K.Value
     where K: PreferenceKey
   {
     // swiftlint:disable:next force_cast
-    (values[ObjectIdentifier(key)] ?? K.defaultValue) as! K.Value
+    values[ObjectIdentifier(key)]?
+      .compactMap { $0 as? K.Value }
+      .reduce(into: K.defaultValue) { res, next in
+        K.reduce(value: &res) { next }
+      } ?? K.defaultValue
   }
 
-  init() {}
+  func empty() {
+    values = [:]
+//    keyMap
+//      .keys
+//      .map { ($0, keyMap[$0]!) }
+//      .forEach {
+//        subjects[$0.0]?.send($0.1.anyDefaultValue)
+//      }
+//    keyMap = [:]
+    subjects = [:]
+  }
+
+  public init() {}
 }

@@ -63,16 +63,21 @@ public final class StackReconciler<R: Renderer> {
    */
   private let scheduler: (@escaping () -> ()) -> ()
 
+  let preferenceStore: PreferenceStore
+
   public init<V: View>(
     view: V,
     target: R.TargetType,
     environment: EnvironmentValues,
+    preferences: PreferenceStore = PreferenceStore(),
     renderer: R,
     scheduler: @escaping (@escaping () -> ()) -> ()
   ) {
     self.renderer = renderer
     self.scheduler = scheduler
     rootTarget = target
+
+    preferenceStore = preferences
 
     rootElement = AnyView(view).makeMountedView(target, environment)
 
@@ -83,12 +88,15 @@ public final class StackReconciler<R: Renderer> {
     app: A,
     target: R.TargetType,
     environment: EnvironmentValues,
+    preferences: PreferenceStore = PreferenceStore(),
     renderer: R,
     scheduler: @escaping (@escaping () -> ()) -> ()
   ) {
     self.renderer = renderer
     self.scheduler = scheduler
     rootTarget = target
+
+    preferenceStore = preferences
 
     rootElement = MountedApp(app, target, environment)
 
@@ -118,6 +126,7 @@ public final class StackReconciler<R: Renderer> {
   }
 
   private func updateStateAndReconcile() {
+    preferenceStore.empty()
     for mountedView in queuedRerenders {
       mountedView.update(with: self)
     }

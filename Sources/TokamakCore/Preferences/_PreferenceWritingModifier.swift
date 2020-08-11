@@ -19,16 +19,14 @@ protocol PreferenceWriter {
   func setPreference(_ store: PreferenceStore)
 }
 
-public struct _PreferenceWritingModifier<Key>: ViewModifier where Key: PreferenceKey {
-  public let value: Key.Value
+struct _PreferenceWritingModifier<Key>: ViewModifier where Key: PreferenceKey {
+  let value: Key.Value
 
-  public init(key: Key.Type = Key.self, value: Key.Value) {
+  init(key: Key.Type = Key.self, value: Key.Value) {
     self.value = value
   }
 
-  public func body(content: Content) -> some View {
-    content
-  }
+  typealias Body = Never
 }
 
 extension _PreferenceWritingModifier: PreferenceWriter {
@@ -37,9 +35,15 @@ extension _PreferenceWritingModifier: PreferenceWriter {
   }
 }
 
+extension ModifiedContent: PreferenceWriter where Modifier: PreferenceWriter {
+  func setPreference(_ store: PreferenceStore) {
+    modifier.setPreference(store)
+  }
+}
+
 extension _PreferenceWritingModifier: Equatable where Key.Value: Equatable {
-  public static func == (lhs: _PreferenceWritingModifier<Key>,
-                         rhs: _PreferenceWritingModifier<Key>) -> Bool
+  static func == (lhs: _PreferenceWritingModifier<Key>,
+                  rhs: _PreferenceWritingModifier<Key>) -> Bool
   {
     lhs.value == rhs.value
   }

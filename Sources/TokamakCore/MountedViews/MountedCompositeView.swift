@@ -26,6 +26,8 @@ final class MountedCompositeView<R: Renderer>: MountedCompositeElement<R> {
       appearanceAction.appear?()
     }
 
+    updatePreferences(with: reconciler)
+
     let child: MountedElement<R> = childBody.makeMountedView(parentTarget, environmentValues)
     mountedChildren = [child]
     child.mount(with: reconciler)
@@ -43,6 +45,17 @@ final class MountedCompositeView<R: Renderer>: MountedCompositeElement<R> {
 
       targetRef.target = hostDescendant.target
       view.view = targetRef
+    }
+  }
+
+  func updatePreferences(with reconciler: StackReconciler<R>) {
+    if let preferenceWriter = view.view as? PreferenceWriter {
+      preferenceWriter.setPreference(reconciler.preferenceStore)
+    }
+
+    if var preferenceReader = view.view as? PreferenceReader {
+      preferenceReader.setupSubscription(on: reconciler.preferenceStore)
+      view.view = preferenceReader
     }
   }
 
@@ -66,5 +79,6 @@ final class MountedCompositeView<R: Renderer>: MountedCompositeElement<R> {
       },
       mountChild: { $0.makeMountedView(parentTarget, environmentValues) }
     )
+    updatePreferences(with: reconciler)
   }
 }
