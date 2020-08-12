@@ -22,17 +22,17 @@ final class MountedScene<R: Renderer>: MountedCompositeElement<R> {
     _ title: String?,
     _ children: [MountedElement<R>],
     _ parentTarget: R.TargetType,
-    _ environmentValues: EnvironmentValues
+    _ data: MountedElementData
   ) {
     self.title = title
-    super.init(scene, parentTarget, environmentValues)
+    super.init(scene, parentTarget, data)
     mountedChildren = children
   }
 
   override func mount(with reconciler: StackReconciler<R>) {
     let childBody = reconciler.render(mountedScene: self)
 
-    let child: MountedElement<R> = childBody.makeMountedElement(parentTarget, environmentValues)
+    let child: MountedElement<R> = childBody.makeMountedElement(parentTarget, data)
     mountedChildren = [child]
     child.mount(with: reconciler)
   }
@@ -48,7 +48,7 @@ final class MountedScene<R: Renderer>: MountedCompositeElement<R> {
       with: element,
       getElementType: { $0.type },
       updateChild: {
-        $0.environmentValues = environmentValues
+        $0.data = data
         switch element {
         case let .scene(scene):
           $0.scene = _AnyScene(scene)
@@ -56,7 +56,7 @@ final class MountedScene<R: Renderer>: MountedCompositeElement<R> {
           $0.view = AnyView(view)
         }
       },
-      mountChild: { $0.makeMountedElement(parentTarget, environmentValues) }
+      mountChild: { $0.makeMountedElement(parentTarget, data) }
     )
   }
 }
@@ -73,13 +73,13 @@ extension _AnyScene.BodyResult {
 
   func makeMountedElement<R: Renderer>(
     _ parentTarget: R.TargetType,
-    _ environmentValues: EnvironmentValues
+    _ data: MountedElementData
   ) -> MountedElement<R> {
     switch self {
     case let .scene(scene):
-      return scene.makeMountedScene(parentTarget, environmentValues)
+      return scene.makeMountedScene(parentTarget, data)
     case let .view(view):
-      return view.makeMountedView(parentTarget, environmentValues)
+      return view.makeMountedView(parentTarget, data)
     }
   }
 }
@@ -87,7 +87,7 @@ extension _AnyScene.BodyResult {
 extension _AnyScene {
   func makeMountedScene<R: Renderer>(
     _ parentTarget: R.TargetType,
-    _ environmentValues: EnvironmentValues
+    _ data: MountedElementData
   ) -> MountedScene<R> {
     var title: String?
     if let titledSelf = scene as? TitledScene,
@@ -97,12 +97,12 @@ extension _AnyScene {
     }
     let children: [MountedElement<R>]
     if let deferredScene = scene as? SceneDeferredToRenderer {
-      children = [deferredScene.deferredBody.makeMountedView(parentTarget, environmentValues)]
+      children = [deferredScene.deferredBody.makeMountedView(parentTarget, data)]
     } else if let groupScene = scene as? GroupScene {
-      children = groupScene.children.map { $0.makeMountedScene(parentTarget, environmentValues) }
+      children = groupScene.children.map { $0.makeMountedScene(parentTarget, data) }
     } else {
       children = []
     }
-    return .init(self, title, children, parentTarget, environmentValues)
+    return .init(self, title, children, parentTarget, data)
   }
 }

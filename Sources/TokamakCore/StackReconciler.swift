@@ -63,13 +63,10 @@ public final class StackReconciler<R: Renderer> {
    */
   private let scheduler: (@escaping () -> ()) -> ()
 
-  let preferenceStore: PreferenceStore
-
   public init<V: View>(
     view: V,
     target: R.TargetType,
     environment: EnvironmentValues,
-    preferences: PreferenceStore = PreferenceStore(),
     renderer: R,
     scheduler: @escaping (@escaping () -> ()) -> ()
   ) {
@@ -77,9 +74,13 @@ public final class StackReconciler<R: Renderer> {
     self.scheduler = scheduler
     rootTarget = target
 
-    preferenceStore = preferences
-
-    rootElement = AnyView(view).makeMountedView(target, environment)
+    rootElement = AnyView(view).makeMountedView(
+      target,
+      MountedElementData(
+        environmentValues: environment,
+        preferenceStore: .init()
+      )
+    )
 
     rootElement.mount(with: self)
   }
@@ -88,7 +89,6 @@ public final class StackReconciler<R: Renderer> {
     app: A,
     target: R.TargetType,
     environment: EnvironmentValues,
-    preferences: PreferenceStore = PreferenceStore(),
     renderer: R,
     scheduler: @escaping (@escaping () -> ()) -> ()
   ) {
@@ -96,9 +96,14 @@ public final class StackReconciler<R: Renderer> {
     self.scheduler = scheduler
     rootTarget = target
 
-    preferenceStore = preferences
-
-    rootElement = MountedApp(app, target, environment)
+    rootElement = MountedApp(
+      app,
+      target,
+      MountedElementData(
+        environmentValues: environment,
+        preferenceStore: .init()
+      )
+    )
 
     rootElement.mount(with: self)
     if let mountedApp = rootElement as? MountedApp<R> {
@@ -126,7 +131,6 @@ public final class StackReconciler<R: Renderer> {
   }
 
   private func updateStateAndReconcile() {
-    preferenceStore.empty()
     for mountedView in queuedRerenders {
       mountedView.update(with: self)
     }
@@ -187,10 +191,10 @@ public final class StackReconciler<R: Renderer> {
     publisher.sink { [weak self, weak mountedApp] value in
       guard
         let mountedApp = mountedApp,
-        mountedApp.environmentValues[keyPath: keyPath] != value
+        mountedApp.data.environmentValues[keyPath: keyPath] != value
       else { return }
 
-      mountedApp.environmentValues[keyPath: keyPath] = value
+      mountedApp.data.environmentValues[keyPath: keyPath] = value
       self?.queueUpdate(for: mountedApp)
     }.store(in: &mountedApp.subscriptions)
   }
@@ -204,7 +208,7 @@ public final class StackReconciler<R: Renderer> {
 
     var stateIdx = 0
     let dynamicProps = info.dynamicProperties(
-      compositeElement.environmentValues,
+      compositeElement.data,
       source: &compositeElement[keyPath: bodyKeypath]
     )
 

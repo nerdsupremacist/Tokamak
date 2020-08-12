@@ -18,9 +18,8 @@ extension NavigationView: ViewDeferredToRenderer {
   public var deferredBody: AnyView {
     let proxy = _NavigationViewProxy(self)
     return AnyView(HTML("div", [
-      "class": "_tokamak-navigationview \(proxy.toolbar != nil ? "_tokamak-navigationview-with-toolbar" : "")",
+      "class": "_tokamak-navigationview \(proxy.hasToolbar ? "_tokamak-navigationview-with-toolbar" : "")",
     ]) {
-      proxy.toolbar
       proxy
       HTML("div", [
         "class": "_tokamak-navigationview-content",

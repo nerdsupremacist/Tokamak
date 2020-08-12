@@ -33,7 +33,7 @@ public struct _PreferenceTransformModifier<Key>: ViewModifier
 
 extension _PreferenceTransformModifier: PreferenceWriter {
   func setPreference(_ store: PreferenceStore) {
-    var value = store.value(forKey: Key.self)
+    var value = store.value(forKey: Key.self) ?? Key.defaultValue
     transform(&value)
     store.setValue(value, forKey: Key.self)
   }

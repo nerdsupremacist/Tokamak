@@ -31,17 +31,15 @@ public struct _PreferenceActionModifier<Key>: ViewModifier
     self.action = action
   }
 
-  public func body(content: Content) -> some View {
-    content
-  }
+  public typealias Body = Never
 }
 
 extension _PreferenceActionModifier: PreferenceReader {
   mutating func setupSubscription(on store: PreferenceStore) {
     cancellable = store.subscribe(to: Key.self)?
+      .removeDuplicates()
       .compactMap { $0 }
       .sink(receiveValue: action)
-//    action(store.value(forKey: Key.self))
   }
 }
 

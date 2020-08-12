@@ -18,9 +18,11 @@
 import CombineShim
 
 public final class PreferenceStore {
-  private var values: [ObjectIdentifier: [Any]] = [:]
-//  private var keyMap: [ObjectIdentifier: _AnyPreferenceKey.Type] = [:]
-  private var subjects: [ObjectIdentifier: CurrentValueSubject<Any, Never>] = [:]
+  private(set) var values: [ObjectIdentifier: [Any]]
+  private(set) var subjects: [ObjectIdentifier: CurrentValueSubject<Any, Never>]
+  /// This allows for a separation when branches occur in the view tree.
+  /// The branch can send its preference changes to the parent, but sibling branches won't send to other siblings.
+  private(set) var parentSubjects: [[ObjectIdentifier: CurrentValueSubject<Any, Never>]]
 
   typealias PreferencePublisher<K> = Publishers.Map<CurrentValueSubject<Any, Never>, K.Value?>
     where K: PreferenceKey
@@ -43,25 +45,13 @@ public final class PreferenceStore {
     var valueList = values[id] ?? [Any]()
     valueList.append(value)
     values[id] = valueList
-//    keyMap[id] = key
-    subjects[id]?.send(self.value(forKey: key) as Any)
-  }
-
-  func setValue<K>(_ value: K.Value, forKey key: K.Type)
-    where K: PreferenceKey, K.Value: Equatable
-  {
-    let id = ObjectIdentifier(key)
-    let prevValue = self.value(forKey: key)
-    var valueList = values[id] ?? [Any]()
-    valueList.append(value)
-    values[id] = valueList
-    let res = self.value(forKey: key)
-    if res != prevValue {
+    if let res = self.value(forKey: key) {
       subjects[id]?.send(res as Any)
+      parentSubjects.forEach { $0[id]?.send(res as Any) }
     }
   }
 
-  func value<K>(forKey key: K.Type) -> K.Value
+  func value<K>(forKey key: K.Type) -> K.Value?
     where K: PreferenceKey
   {
     // swiftlint:disable:next force_cast
@@ -69,20 +59,22 @@ public final class PreferenceStore {
       .compactMap { $0 as? K.Value }
       .reduce(into: K.defaultValue) { res, next in
         K.reduce(value: &res) { next }
-      } ?? K.defaultValue
+      }
   }
 
-  func empty() {
-    values = [:]
-//    keyMap
-//      .keys
-//      .map { ($0, keyMap[$0]!) }
-//      .forEach {
-//        subjects[$0.0]?.send($0.1.anyDefaultValue)
-//      }
-//    keyMap = [:]
-    subjects = [:]
+  public init(_ values: [ObjectIdentifier: [Any]] = [:],
+              _ subjects: [ObjectIdentifier: CurrentValueSubject<Any, Never>] = [:],
+              parentSubjects: [[ObjectIdentifier: CurrentValueSubject<Any, Never>]] = [])
+  {
+    self.values = values
+    self.subjects = subjects
+    self.parentSubjects = parentSubjects
   }
 
-  public init() {}
+  func branch() -> PreferenceStore {
+    .init(
+      values,
+      parentSubjects: parentSubjects + [subjects]
+    )
+  }
 }

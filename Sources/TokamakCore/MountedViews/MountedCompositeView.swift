@@ -22,9 +22,9 @@ final class MountedCompositeView<R: Renderer>: MountedCompositeElement<R> {
   override func mount(with reconciler: StackReconciler<R>) {
     let childBody = reconciler.render(compositeView: self)
 
-    updatePreferences(with: reconciler)
+    updatePreferences()
 
-    let child: MountedElement<R> = childBody.makeMountedView(parentTarget, environmentValues)
+    let child: MountedElement<R> = childBody.makeMountedView(parentTarget, data)
     mountedChildren = [child]
     child.mount(with: reconciler)
 
@@ -51,14 +51,13 @@ final class MountedCompositeView<R: Renderer>: MountedCompositeElement<R> {
     }
   }
 
-  func updatePreferences(with reconciler: StackReconciler<R>) {
-    if let preferenceWriter = view.view as? PreferenceWriter {
-      preferenceWriter.setPreference(reconciler.preferenceStore)
-    }
-
+  func updatePreferences() {
     if var preferenceReader = view.view as? PreferenceReader {
-      preferenceReader.setupSubscription(on: reconciler.preferenceStore)
+      preferenceReader.setupSubscription(on: data.preferenceStore)
       view.view = preferenceReader
+    }
+    if let preferenceWriter = view.view as? PreferenceWriter {
+      preferenceWriter.setPreference(data.preferenceStore)
     }
   }
 
@@ -72,16 +71,16 @@ final class MountedCompositeView<R: Renderer>: MountedCompositeElement<R> {
 
   override func update(with reconciler: StackReconciler<R>) {
     let element = reconciler.render(compositeView: self)
+    updatePreferences()
     reconciler.reconcile(
       self,
       with: element,
       getElementType: { $0.type },
       updateChild: {
-        $0.environmentValues = environmentValues
+        $0.data = data
         $0.view = AnyView(element)
       },
-      mountChild: { $0.makeMountedView(parentTarget, environmentValues) }
+      mountChild: { $0.makeMountedView(parentTarget, data) }
     )
-    updatePreferences(with: reconciler)
   }
 }

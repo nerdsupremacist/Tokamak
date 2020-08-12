@@ -15,11 +15,7 @@
 //  Created by Carson Katri on 8/11/20.
 //
 
-public protocol _AnyPreferenceKey {
-  static var anyDefaultValue: Any { get }
-}
-
-public protocol PreferenceKey: _AnyPreferenceKey {
+public protocol PreferenceKey {
   associatedtype Value
   static var defaultValue: Value { get }
   static func reduce(value: inout Value, nextValue: () -> Value)
@@ -34,5 +30,4 @@ extension PreferenceKey where Value: ExpressibleByNilLiteral {
 extension PreferenceKey {
   public static var _includesRemovedValues: Bool { false }
   public static var _isReadableByHost: Bool { false }
-  static var anyDefaultValue: Any { defaultValue as Any }
 }

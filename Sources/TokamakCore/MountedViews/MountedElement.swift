@@ -86,23 +86,29 @@ public class MountedElement<R: Renderer> {
   }
 
   var mountedChildren = [MountedElement<R>]()
-  var environmentValues: EnvironmentValues
+  var data: MountedElementData
 
-  init(_ app: _AnyApp, _ environmentValues: EnvironmentValues) {
+  init(_ app: _AnyApp,
+       _ data: MountedElementData)
+  {
     element = .app(app)
-    self.environmentValues = environmentValues
+    self.data = data
     updateEnvironment()
   }
 
-  init(_ scene: _AnyScene, _ environmentValues: EnvironmentValues) {
+  init(_ scene: _AnyScene,
+       _ data: MountedElementData)
+  {
     element = .scene(scene)
-    self.environmentValues = environmentValues
+    self.data = data
     updateEnvironment()
   }
 
-  init(_ view: AnyView, _ environmentValues: EnvironmentValues) {
+  init(_ view: AnyView,
+       _ data: MountedElementData)
+  {
     element = .view(view)
-    self.environmentValues = environmentValues
+    self.data = data
     updateEnvironment()
   }
 
@@ -112,11 +118,20 @@ public class MountedElement<R: Renderer> {
     let info = try! typeInfo(of: element.type)
     switch element {
     case .app:
-      environmentValues = info.injectEnvironment(from: environmentValues, into: &app.app)
+      data.environmentValues = info.injectEnvironment(
+        from: data.environmentValues,
+        into: &app.app
+      )
     case .scene:
-      environmentValues = info.injectEnvironment(from: environmentValues, into: &scene.scene)
+      data.environmentValues = info.injectEnvironment(
+        from: data.environmentValues,
+        into: &scene.scene
+      )
     case .view:
-      environmentValues = info.injectEnvironment(from: environmentValues, into: &view.view)
+      data.environmentValues = info.injectEnvironment(
+        from: data.environmentValues,
+        into: &view.view
+      )
     }
 
     return info
@@ -177,17 +192,17 @@ extension TypeInfo {
   /// Extract all `DynamicProperty` from a type, recursively.
   /// This is necessary as a `DynamicProperty` can be nested.
   /// `EnvironmentValues` can also be injected at this point.
-  func dynamicProperties(_ environment: EnvironmentValues, source: inout Any) -> [PropertyInfo] {
+  func dynamicProperties(_ data: MountedElementData, source: inout Any) -> [PropertyInfo] {
     var dynamicProps = [PropertyInfo]()
     for prop in properties where prop.type is DynamicProperty.Type {
       dynamicProps.append(prop)
       // swiftlint:disable force_try
       let propInfo = try! typeInfo(of: prop.type)
-      _ = propInfo.injectEnvironment(from: environment, into: &source)
+      _ = propInfo.injectEnvironment(from: data.environmentValues, into: &source)
       var extracted = try! prop.get(from: source)
       dynamicProps.append(
         contentsOf: propInfo.dynamicProperties(
-          environment,
+          data,
           source: &extracted
         )
       )
@@ -204,14 +219,14 @@ extension TypeInfo {
 extension AnyView {
   func makeMountedView<R: Renderer>(
     _ parentTarget: R.TargetType,
-    _ environmentValues: EnvironmentValues
+    _ elementData: MountedElementData
   ) -> MountedElement<R> {
     if type == EmptyView.self {
-      return MountedEmptyView(self, environmentValues)
+      return MountedEmptyView(self, elementData)
     } else if bodyType == Never.self && !(type is ViewDeferredToRenderer.Type) {
-      return MountedHostView(self, parentTarget, environmentValues)
+      return MountedHostView(self, parentTarget, elementData)
     } else {
-      return MountedCompositeView(self, parentTarget, environmentValues)
+      return MountedCompositeView(self, parentTarget, elementData)
     }
   }
 }

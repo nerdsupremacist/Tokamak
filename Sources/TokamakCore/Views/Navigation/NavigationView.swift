@@ -41,17 +41,26 @@ public struct _NavigationViewProxy<Content: View>: View {
 
   public init(_ subject: NavigationView<Content>) { self.subject = subject }
 
-  public var title: String? { subject.context.title }
+//  public var title: String? { subject.context.title }
+
+  @State public var title: String?
+  @State public var toolbar: AnyView = AnyView(EmptyView())
 
   public var body: some View {
-    subject.content
-      .environmentObject(subject.context)
-      .onPreferenceChange(NavigationTitleKey.self) {
-        subject.context.title = $0
-      }
-      .onPreferenceChange(ToolbarKey.self) {
-        subject.context.toolbar = $0.content
-      }
+    Group {
+//      subject.context.toolbar
+      toolbar
+      subject.content
+    }
+    .environmentObject(subject.context)
+    .onPreferenceChange(NavigationTitleKey.self) {
+//        subject.context.title = $0
+      title = $0
+    }
+    .onPreferenceChange(ToolbarKey.self) {
+//        subject.context.toolbar = $0.content
+      toolbar = $0.content
+    }
   }
 
   public var destination: some View {
@@ -59,5 +68,8 @@ public struct _NavigationViewProxy<Content: View>: View {
       .environmentObject(subject.context)
   }
 
-  public var toolbar: AnyView { subject.context.toolbar }
+  public var hasToolbar: Bool {
+//    subject.context.toolbar.type is EmptyView.Type
+    !(toolbar.type is EmptyView.Type)
+  }
 }

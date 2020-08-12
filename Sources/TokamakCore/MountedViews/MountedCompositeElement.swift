@@ -23,19 +23,19 @@ class MountedCompositeElement<R: Renderer>: MountedElement<R> {
   var state = [Any]()
   var subscriptions = [AnyCancellable]()
 
-  init<A: App>(_ app: A, _ parentTarget: R.TargetType, _ environmentValues: EnvironmentValues) {
+  init<A: App>(_ app: A, _ parentTarget: R.TargetType, _ data: MountedElementData) {
     self.parentTarget = parentTarget
-    super.init(_AnyApp(app), environmentValues)
+    super.init(_AnyApp(app), data)
   }
 
-  init(_ scene: _AnyScene, _ parentTarget: R.TargetType, _ environmentValues: EnvironmentValues) {
+  init(_ scene: _AnyScene, _ parentTarget: R.TargetType, _ data: MountedElementData) {
     self.parentTarget = parentTarget
-    super.init(scene, environmentValues)
+    super.init(scene, data)
   }
 
-  init(_ view: AnyView, _ parentTarget: R.TargetType, _ environmentValues: EnvironmentValues) {
+  init(_ view: AnyView, _ parentTarget: R.TargetType, _ data: MountedElementData) {
     self.parentTarget = parentTarget
-    super.init(view, environmentValues)
+    super.init(view, data)
   }
 }
 

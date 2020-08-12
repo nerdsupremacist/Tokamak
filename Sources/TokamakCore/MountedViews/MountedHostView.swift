@@ -31,10 +31,10 @@ public final class MountedHostView<R: Renderer>: MountedElement<R> {
   /// Target of this host view supplied by a renderer after mounting has completed.
   private(set) var target: R.TargetType?
 
-  init(_ view: AnyView, _ parentTarget: R.TargetType, _ environmentValues: EnvironmentValues) {
+  init(_ view: AnyView, _ parentTarget: R.TargetType, _ data: MountedElementData) {
     self.parentTarget = parentTarget
 
-    super.init(view, environmentValues)
+    super.init(view, data)
   }
 
   override func mount(with reconciler: StackReconciler<R>) {
@@ -46,7 +46,9 @@ public final class MountedHostView<R: Renderer>: MountedElement<R> {
     guard !view.children.isEmpty else { return }
 
     mountedChildren = view.children.map {
-      $0.makeMountedView(target, environmentValues)
+      // We need a new preference store for each child so they don't see
+      // each other's changes.
+      $0.makeMountedView(target, data.branch())
     }
     mountedChildren.forEach { $0.mount(with: reconciler) }
   }
@@ -81,7 +83,9 @@ public final class MountedHostView<R: Renderer>: MountedElement<R> {
 
     // if no existing children then mount all new children
     case (true, false):
-      mountedChildren = childrenViews.map { $0.makeMountedView(target, environmentValues) }
+      mountedChildren = childrenViews.map {
+        $0.makeMountedView(target, data.branch())
+      }
       mountedChildren.forEach { $0.mount(with: reconciler) }
 
     // if both arrays have items then reconcile by types and keys
@@ -94,14 +98,14 @@ public final class MountedHostView<R: Renderer>: MountedElement<R> {
       while let child = mountedChildren.first, let firstChild = childrenViews.first {
         let newChild: MountedElement<R>
         if firstChild.typeConstructorName == mountedChildren[0].view.typeConstructorName {
-          child.environmentValues = environmentValues
+          child.data = data.branch()
           child.view = firstChild
           child.updateEnvironment()
           child.update(with: reconciler)
           newChild = child
         } else {
           child.unmount(with: reconciler)
-          newChild = firstChild.makeMountedView(target, environmentValues)
+          newChild = firstChild.makeMountedView(target, data.branch())
           newChild.mount(with: reconciler)
         }
         newChildren.append(newChild)
@@ -120,7 +124,7 @@ public final class MountedHostView<R: Renderer>: MountedElement<R> {
         // mount remaining views
         for firstChild in childrenViews {
           let newChild: MountedElement<R> =
-            firstChild.makeMountedView(target, environmentValues)
+            firstChild.makeMountedView(target, data.branch())
           newChild.mount(with: reconciler)
           newChildren.append(newChild)
         }
