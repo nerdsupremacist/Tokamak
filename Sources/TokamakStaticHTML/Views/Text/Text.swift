@@ -84,7 +84,7 @@ public extension Font {
         ._name,
       "font-weight": "\(proxy._bold ? Font.Weight.bold.value : proxy._weight.value)",
       "font-style": proxy._italic ? "italic" : "normal",
-      "font-size": "\(proxy._size)",
+      "font-size": "\(proxy._size)px",
       "line-height": proxy._leading.description,
       "font-variant": proxy._smallCaps ? "small-caps" : "normal",
     ]
